@@ -44,14 +44,14 @@ st.markdown("""
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: #333;
+        background-color: #000000;
         color: white;
         text-align: center;
         padding: 1rem;
     }
     .header {
         width: 100%;
-        background-color: #333;
+        background-color: #ffffff;
         color: white;
         text-align: center;
         padding: 1rem;
