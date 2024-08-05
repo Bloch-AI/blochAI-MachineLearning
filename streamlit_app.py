@@ -53,13 +53,16 @@ quality_mapping = {
 data['quality'] = data['quality'].astype(str).map(quality_mapping)
 data.dropna(subset=['quality'], inplace=True)
 
+# Sidebar for parameter selection
+with st.sidebar:
+    st.write('## Model Parameters')
+    test_size = st.slider('Test Size', 0.1, 0.5, 0.2)
+
 # Feature selection (X converted to NumPy array)
 X = data.drop(['quality'], axis=1).values
-y = data['quality'].values  # converting to np array
+y = data['quality'].values  
 
 # Split the data
-st.write('## Train/Test Split')
-test_size = st.slider('Select test size', 0.1, 0.15, 0.2, 0.25)  # Adjust slider options
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
 # Train the model
@@ -87,6 +90,6 @@ for feature in data.drop(['quality'], axis=1).columns:
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
 
-quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}  # Reverse the mapping
+quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}  
 predicted_quality = quality_mapping_reverse[prediction]
 st.write(f'### Predicted Quality: {predicted_quality}')
