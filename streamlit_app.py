@@ -20,7 +20,7 @@ def load_data(url):
         st.write(f"Response Headers: {response.headers}")  # Debug statement
         file = BytesIO(response.content)
         st.write(f"File size: {len(file.getvalue())} bytes")  # Debug statement
-        data = pd.read_excel(file)
+        data = pd.read_excel(file, engine='openpyxl')  # Specify engine explicitly
         return data
     except Exception as e:
         st.error(f"Error loading data: {e}")
@@ -78,4 +78,3 @@ for feature in X.columns:
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
 st.write(f'### Predicted Quality: {prediction}')
-
