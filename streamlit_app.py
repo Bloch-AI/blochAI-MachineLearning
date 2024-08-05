@@ -140,7 +140,7 @@ for train_index, test_index in skf.split(X, y):
     y_train, y_test = y[train_index], y[test_index]
 
 # Train the model
-st.write(f'## Model Accuracy ({prediction_choice})')
+st.write(f'## Model Results ({prediction_choice})')
 model = RandomForestClassifier(random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
