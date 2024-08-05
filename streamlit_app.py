@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 st.markdown("""
     <style>
     .main {
-        background-color: #f5f5f5;
+        background-color: #ffffff;
     }
     .block-container {
         padding: 2rem;
@@ -21,7 +21,7 @@ st.markdown("""
         background-color: #f0f0f5;
         padding: 2rem;
     }
-    .prediction-box, .accuracy-box {
+    .prediction-box, .result-box {
         padding: 10px;
         border: 2px solid black;
         background-color: lightyellow;
@@ -44,14 +44,14 @@ st.markdown("""
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: #f5f5f5;
+        background-color: #333;
         color: white;
         text-align: center;
         padding: 1rem;
     }
     .header {
         width: 100%;
-        background-color: #f5f5f5;
+        background-color: #333;
         color: white;
         text-align: center;
         padding: 1rem;
@@ -143,22 +143,81 @@ y_pred = model.predict(X_test)
 
 # Display accuracy
 accuracy = accuracy_score(y_test, y_pred)
-st.markdown(f'<div class="accuracy-box">### Model Accuracy: {accuracy:.2f}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="result-box">### Model Accuracy: {accuracy:.2f}</div>', unsafe_allow_html=True)
 
-# Feature importance
-importance = model.feature_importances_
-feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
-top_features = feature_importance.head(3)
+# Feature importance and ROC Curve in one box
+with st.container():
+    st.markdown(f'<div class="result-box">', unsafe_allow_html=True)
+    
+    # Feature importance
+    importance = model.feature_importances_
+    feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
+    top_features = feature_importance.head(3)
 
-# Plot top 3 feature importances
-st.write('## Top 3 Feature Importances')
-plt.figure(figsize=(10, 5))
-plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
-plt.xlabel('Importance')
-plt.ylabel('Feature')
-plt.title('Top 3 Feature Importances')
-plt.gca().invert_yaxis()
-st.pyplot(plt)
+    # Plot top 3 feature importances
+    st.write('### Top 3 Feature Importances')
+    plt.figure(figsize=(10, 5))
+    plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
+    plt.xlabel('Importance')
+    plt.ylabel('Feature')
+    plt.title('Top 3 Feature Importances')
+    plt.gca().invert_yaxis()
+    st.pyplot(plt)
+
+    # ROC Curve
+    st.write('### ROC Curve')
+    if prediction_choice == 'Quality':
+        try:
+            y_prob = model.predict_proba(X_test)
+            classes_present = np.unique(y_test)
+
+            fpr = {}
+            tpr = {}
+            roc_auc = {}
+
+            for i in classes_present:
+                i = int(i)  # Ensure i is an integer
+                fpr[i], tpr[i], _ = roc_curve(y_test == i, y_prob[:, i])
+                roc_auc[i] = auc(fpr[i], tpr[i])
+
+            # Plot all ROC curves
+            plt.figure()
+            colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
+            for i, color in zip(classes_present, colors):
+                if i in fpr and i in tpr:
+                    plt.plot(fpr[i], tpr[i], color=color, lw=2,
+                             label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
+            plt.plot([0, 1], [0, 1], 'k--', lw=2)
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('Receiver Operating Characteristic (ROC) Curves')
+            plt.legend(loc='lower right')
+            st.pyplot(plt)
+        except IndexError as e:
+            st.error(f"Index error while plotting ROC curves: {e}")
+    else:
+        try:
+            y_prob = model.predict_proba(X_test)[:, 1]
+            fpr, tpr, _ = roc_curve(y_test, y_prob)
+            roc_auc = auc(fpr, tpr)
+
+            # Plot ROC curve
+            plt.figure()
+            plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:0.2f})')
+            plt.plot([0, 1], [0, 1], 'k--', lw=2)
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('Receiver Operating Characteristic (ROC) Curve')
+            plt.legend(loc='lower right')
+            st.pyplot(plt)
+        except IndexError as e:
+            st.error(f"Index error while plotting ROC curves: {e}")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Make prediction from sidebar input
 input_df = pd.DataFrame([user_input])
@@ -176,59 +235,6 @@ else:
 with st.sidebar:
     st.markdown('## Prediction Result')
     st.markdown(f'<div class="prediction-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
-
-# ROC Curve
-st.write('## ROC Curve')
-if prediction_choice == 'Quality':
-    try:
-        y_prob = model.predict_proba(X_test)
-        classes_present = np.unique(y_test)
-
-        fpr = {}
-        tpr = {}
-        roc_auc = {}
-
-        for i in classes_present:
-            i = int(i)  # Ensure i is an integer
-            fpr[i], tpr[i], _ = roc_curve(y_test == i, y_prob[:, i])
-            roc_auc[i] = auc(fpr[i], tpr[i])
-
-        # Plot all ROC curves
-        plt.figure()
-        colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
-        for i, color in zip(classes_present, colors):
-            if i in fpr and i in tpr:
-                plt.plot(fpr[i], tpr[i], color=color, lw=2,
-                         label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
-        plt.plot([0, 1], [0, 1], 'k--', lw=2)
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('Receiver Operating Characteristic (ROC) Curves')
-        plt.legend(loc='lower right')
-        st.pyplot(plt)
-    except IndexError as e:
-        st.error(f"Index error while plotting ROC curves: {e}")
-else:
-    try:
-        y_prob = model.predict_proba(X_test)[:, 1]
-        fpr, tpr, _ = roc_curve(y_test, y_prob)
-        roc_auc = auc(fpr, tpr)
-
-        # Plot ROC curve
-        plt.figure()
-        plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:0.2f})')
-        plt.plot([0, 1], [0, 1], 'k--', lw=2)
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('Receiver Operating Characteristic (ROC) Curve')
-        plt.legend(loc='lower right')
-        st.pyplot(plt)
-    except IndexError as e:
-        st.error(f"Index error while plotting ROC curves: {e}")
 
 # Add footer
 st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved</p></div>', unsafe_allow_html=True)
