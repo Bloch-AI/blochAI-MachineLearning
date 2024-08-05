@@ -74,8 +74,16 @@ else:
 X = data[features].values
 y = data[target].values
 
+# Debug information
+st.write(f'Features: {features}')
+st.write(f'X shape: {X.shape}, y shape: {y.shape}')
+
 # Split the data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+try:
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+except ValueError as e:
+    st.error(f"Error during train/test split: {e}")
+    st.stop()
 
 # Train the model
 st.write(f'## Training Model to Predict {prediction_choice}')
@@ -88,10 +96,19 @@ accuracy = accuracy_score(y_test, y_pred)
 st.write(f'### Accuracy: {accuracy:.2f}')
 
 # Feature importance
-st.write('## Feature Importance')
 importance = model.feature_importances_
 feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
-st.write(feature_importance)
+top_features = feature_importance.head(3)
+
+# Plot top 3 feature importances
+st.write('## Top 3 Feature Importances')
+plt.figure(figsize=(10, 5))
+plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
+plt.xlabel('Importance')
+plt.ylabel('Feature')
+plt.title('Top 3 Feature Importances')
+plt.gca().invert_yaxis()
+st.pyplot(plt)
 
 # Make prediction from sidebar input
 input_df = pd.DataFrame([user_input])
