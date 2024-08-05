@@ -30,6 +30,7 @@ if data is None:
     st.stop()
 
 # Display dataset
+st.title('Bloch.ai')
 st.title('Wine Quality Prediction App')
 st.write('## Wine Dataset')
 st.write(data.head())
