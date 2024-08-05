@@ -6,6 +6,7 @@ import numpy as np
 from io import BytesIO
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_curve, auc
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
@@ -123,8 +124,23 @@ data.dropna(subset=['quality'], inplace=True)
 with st.sidebar:
     st.write('## Model Parameters')
     prediction_choice = st.radio("Choose what to predict", ('Quality', 'Color'))
-    model_choice = st.radio("Choose model", ('Random Forest', 'XGBoost'))
+    model_choice = st.radio("Choose model", ('Random Forest', 'XGBoost', 'Decision Tree'))
     test_size = st.slider('Test Size', 0.1, 0.5, 0.2)
+
+    st.write('## Model Hyperparameters')
+    if model_choice == 'Random Forest':
+        n_estimators = st.slider('Number of trees', 10, 200, 100)
+        max_depth = st.slider('Max depth', 1, 20, 10)
+        min_samples_split = st.slider('Min samples split', 2, 10, 2)
+        min_samples_leaf = st.slider('Min samples leaf', 1, 10, 1)
+    elif model_choice == 'XGBoost':
+        n_estimators = st.slider('Number of trees', 10, 200, 100)
+        max_depth = st.slider('Max depth', 1, 20, 6)
+        learning_rate = st.slider('Learning rate', 0.01, 0.3, 0.1)
+    else:  # Decision Tree
+        max_depth = st.slider('Max depth', 1, 20, 5)
+        min_samples_split = st.slider('Min samples split', 2, 10, 2)
+        min_samples_leaf = st.slider('Min samples leaf', 1, 10, 1)
 
     st.write(f'## Predict Wine {prediction_choice}')
     user_input = {}
@@ -151,9 +167,31 @@ X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=test_
 
 # Initialize and train the selected model
 if model_choice == 'Random Forest':
-    model = RandomForestClassifier(n_estimators=100, max_depth=10, min_samples_split=2, min_samples_leaf=1, class_weight='balanced', random_state=42)
-else:  # XGBoost
-    model = xgb.XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', n_estimators=100, max_depth=6, learning_rate=0.1, random_state=42)
+    model = RandomForestClassifier(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        min_samples_split=min_samples_split,
+        min_samples_leaf=min_samples_leaf,
+        class_weight='balanced',
+        random_state=42
+    )
+elif model_choice == 'XGBoost':
+    model = xgb.XGBClassifier(
+        use_label_encoder=False,
+        eval_metric='mlogloss',
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        learning_rate=learning_rate,
+        random_state=42
+    )
+else:  # Decision Tree
+    model = DecisionTreeClassifier(
+        max_depth=max_depth,
+        min_samples_split=min_samples_split,
+        min_samples_leaf=min_samples_leaf,
+        class_weight='balanced',
+        random_state=42
+    )
 
 model.fit(X_train, y_train)
 
@@ -190,21 +228,19 @@ else:
 st.markdown(f'<div class="result-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # Calculate and display feature importances
-if model_choice == 'Random Forest':
+if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     importance = model.feature_importances_
-else:  # XGBoost
-    importance = model.feature_importances_
-feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
-top_features = feature_importance.head(5)
+    feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
+    top_features = feature_importance.head(5)
 
-st.write('### Top 5 Feature Importances')
-plt.figure(figsize=(10, 5))
-plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
-plt.xlabel('Importance')
-plt.ylabel('Feature')
-plt.title(f'Top 5 Feature Importances ({model_choice})')
-plt.gca().invert_yaxis()
-st.pyplot(plt)
+    st.write('### Top 5 Feature Importances')
+    plt.figure(figsize=(10, 5))
+    plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
+    plt.xlabel('Importance')
+    plt.ylabel('Feature')
+    plt.title(f'Top 5 Feature Importances ({model_choice})')
+    plt.gca().invert_yaxis()
+    st.pyplot(plt)
 
 # Plot ROC curve
 st.write('### ROC Curve')
