@@ -3,11 +3,10 @@ import pandas as pd
 import requests
 import numpy as np
 from io import BytesIO
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_curve, auc
 from sklearn.preprocessing import StandardScaler
-from sklearn.feature_selection import SelectKBest, f_classif
 import matplotlib.pyplot as plt
 
 # Custom CSS for styling
@@ -64,6 +63,7 @@ st.markdown("""
 
 # Add header
 st.markdown('<div class="header"><h1>🍷 Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
+
 
 # GitHub URL for the dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
@@ -125,57 +125,28 @@ y = data[target].values
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-selector = SelectKBest(f_classif, k=10)
-X_selected = selector.fit_transform(X_scaled, y)
-selected_feature_indices = selector.get_support(indices=True)
-selected_features = features[selected_feature_indices]
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=test_size, random_state=42, stratify=y)
 
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+model = RandomForestClassifier(n_estimators=100, max_depth=10, min_samples_split=2, min_samples_leaf=1, class_weight='balanced', random_state=42)
+model.fit(X_train, y_train)
 
-accuracies, precisions, recalls, f1_scores = [], [], [], []
+y_pred = model.predict(X_test)
 
-for train_index, test_index in skf.split(X_selected, y):
-    X_train, X_test = X_selected[train_index], X_selected[test_index]
-    y_train, y_test = y[train_index], y[test_index]
-
-    param_grid = {
-        'n_estimators': [100, 200],
-        'max_depth': [None, 10, 20],
-        'min_samples_split': [2, 5],
-        'min_samples_leaf': [1, 2],
-        'class_weight': ['balanced', 'balanced_subsample', None]
-    }
-    model = RandomForestClassifier(random_state=42)
-    grid_search = GridSearchCV(model, param_grid, cv=3, n_jobs=-1, scoring='accuracy')
-    grid_search.fit(X_train, y_train)
-
-    best_model = grid_search.best_estimator_
-    y_pred = best_model.predict(X_test)
-
-    accuracy = accuracy_score(y_test, y_pred)
-    precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted')
-
-    accuracies.append(accuracy)
-    precisions.append(precision)
-    recalls.append(recall)
-    f1_scores.append(f1)
+accuracy = accuracy_score(y_test, y_pred)
+precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted')
 
 st.write(f'## Model Performance ({prediction_choice})')
 st.markdown(f'<div class="result-box">'
-            f'### Average Metrics (5-fold cross-validation):<br>'
-            f'Accuracy: {np.mean(accuracies):.2f} (+/- {np.std(accuracies):.2f})<br>'
-            f'Precision: {np.mean(precisions):.2f} (+/- {np.std(precisions):.2f})<br>'
-            f'Recall: {np.mean(recalls):.2f} (+/- {np.std(recalls):.2f})<br>'
-            f'F1-score: {np.mean(f1_scores):.2f} (+/- {np.std(f1_scores):.2f})'
+            f'### Metrics:<br>'
+            f'Accuracy: {accuracy:.2f}<br>'
+            f'Precision: {precision:.2f}<br>'
+            f'Recall: {recall:.2f}<br>'
+            f'F1-score: {f1:.2f}'
             f'</div>', unsafe_allow_html=True)
-
-final_model = RandomForestClassifier(**grid_search.best_params_, random_state=42)
-final_model.fit(X_selected, y)
 
 input_df = pd.DataFrame([user_input])
 input_scaled = scaler.transform(input_df)
-input_selected = selector.transform(input_scaled)
-prediction = final_model.predict(input_selected)[0]
+prediction = model.predict(input_scaled)[0]
 
 if prediction_choice == 'Quality':
     quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
@@ -185,8 +156,8 @@ else:
 
 st.markdown(f'<div class="result-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
-importance = final_model.feature_importances_
-feature_importance = pd.DataFrame({'Feature': selected_features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
+importance = model.feature_importances_
+feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
 top_features = feature_importance.head(5)
 
 st.write('### Top 5 Feature Importances')
@@ -200,13 +171,13 @@ st.pyplot(plt)
 
 st.write('### ROC Curve')
 if prediction_choice == 'Quality':
-    y_prob = final_model.predict_proba(X_selected)
+    y_prob = model.predict_proba(X_test)
     classes_present = np.unique(y)
     quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
 
     plt.figure(figsize=(10, 6))
     for i in classes_present:
-        fpr, tpr, _ = roc_curve(y == i, y_prob[:, i])
+        fpr, tpr, _ = roc_curve(y_test == i, y_prob[:, i])
         roc_auc = auc(fpr, tpr)
         plt.plot(fpr, tpr, lw=2, label=f'Class {quality_mapping_reverse[i]} (AUC = {roc_auc:.2f})')
 
@@ -219,8 +190,8 @@ if prediction_choice == 'Quality':
     plt.legend(loc="lower right")
     st.pyplot(plt)
 else:
-    y_prob = final_model.predict_proba(X_selected)[:, 1]
-    fpr, tpr, _ = roc_curve(y, y_prob)
+    y_prob = model.predict_proba(X_test)[:, 1]
+    fpr, tpr, _ = roc_curve(y_test, y_prob)
     roc_auc = auc(fpr, tpr)
 
     plt.figure(figsize=(10, 6))
