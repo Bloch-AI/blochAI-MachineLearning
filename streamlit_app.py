@@ -182,39 +182,47 @@ plt.title('Top 3 Feature Importances')
 plt.gca().invert_yaxis()
 st.pyplot(plt)
 
-# ROC Curve
+# ROC Curve (for multiclass 'Quality')
 st.write('### ROC Curve')
 if prediction_choice == 'Quality':
-    try:
-        y_prob = model.predict_proba(X_test)
-        classes_present = np.unique(y_test)
-        quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
+    y_prob = model.predict_proba(X_test)
+    y_test_bin = label_binarize(y_test, classes=np.unique(y_test))
 
-        fpr = {}
-        tpr = {}
-        roc_auc = {}
+    # Compute ROC curve and ROC area for each class
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    n_classes = y_test_bin.shape[1]
 
-        for i in classes_present:
-            i = int(i)  # Ensure i is an integer
-            fpr[i], tpr[i], _ = roc_curve(y_test == i, y_prob[:, i])
-            roc_auc[i] = auc(fpr[i], tpr[i])
+    for i in range(n_classes):
+        fpr[i], tpr[i], _ = roc_curve(y_test_bin[:,   
+ i], y_prob[:, i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
 
-        # Plot all ROC curves
-        plt.figure()
-        colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
-        for i, color in zip(classes_present, colors):
-            if i in fpr and i in tpr:
-                plt.plot(fpr[i], tpr[i], color=color, lw=2,
-                         label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
-        plt.plot([0, 1], [0, 1], 'k--', lw=2)
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('Receiver Operating Characteristic (ROC) Curves')
-        plt.legend(loc='lower right')
-        st.pyplot(plt)
-    except IndexError as e:
+    # Compute micro-average ROC curve and ROC area
+    fpr["micro"], tpr["micro"], _ = roc_curve(y_test_bin.ravel(), y_prob.ravel())   
+
+    roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+    
+     # Plot ROC curve
+    plt.figure()
+    plt.plot(fpr["micro"], tpr["micro"],
+             label='micro-average ROC curve (area = {0:0.2f})'
+                   ''.format(roc_auc["micro"]),   
+
+             color='deeppink', linestyle=':', linewidth=4)   
+
+    
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver   
+ Operating Characteristic (ROC) Curves')
+    plt.legend(loc='lower right')
+    st.pyplot(plt)
+except IndexError as e:
         st.error(f"Index error while plotting ROC curves: {e}")
 else:
     try:
