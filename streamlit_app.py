@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_curve, auc
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+import xgboost as xgb
 
 # Custom CSS for styling the Streamlit app
 st.markdown("""
@@ -122,6 +123,7 @@ data.dropna(subset=['quality'], inplace=True)
 with st.sidebar:
     st.write('## Model Parameters')
     prediction_choice = st.radio("Choose what to predict", ('Quality', 'Color'))
+    model_choice = st.radio("Choose model", ('Random Forest', 'XGBoost'))
     test_size = st.slider('Test Size', 0.1, 0.5, 0.2)
 
     st.write(f'## Predict Wine {prediction_choice}')
@@ -147,8 +149,12 @@ X_scaled = scaler.fit_transform(X)
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=test_size, random_state=42, stratify=y)
 
-# Initialize and train the Random Forest model
-model = RandomForestClassifier(n_estimators=100, max_depth=10, min_samples_split=2, min_samples_leaf=1, class_weight='balanced', random_state=42)
+# Initialize and train the selected model
+if model_choice == 'Random Forest':
+    model = RandomForestClassifier(n_estimators=100, max_depth=10, min_samples_split=2, min_samples_leaf=1, class_weight='balanced', random_state=42)
+else:  # XGBoost
+    model = xgb.XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', n_estimators=100, max_depth=6, learning_rate=0.1, random_state=42)
+
 model.fit(X_train, y_train)
 
 # Make predictions on the test set
@@ -159,7 +165,7 @@ accuracy = accuracy_score(y_test, y_pred)
 precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted')
 
 # Display model performance metrics
-st.write(f'## Model Performance ({prediction_choice})')
+st.write(f'## Model Performance ({model_choice} - {prediction_choice})')
 st.markdown(f'<div class="result-box">'
             f'### Metrics:<br>'
             f'Accuracy: {accuracy:.2f}<br>'
@@ -184,7 +190,10 @@ else:
 st.markdown(f'<div class="result-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # Calculate and display feature importances
-importance = model.feature_importances_
+if model_choice == 'Random Forest':
+    importance = model.feature_importances_
+else:  # XGBoost
+    importance = model.feature_importances_
 feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
 top_features = feature_importance.head(5)
 
@@ -193,7 +202,7 @@ plt.figure(figsize=(10, 5))
 plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
 plt.xlabel('Importance')
 plt.ylabel('Feature')
-plt.title('Top 5 Feature Importances')
+plt.title(f'Top 5 Feature Importances ({model_choice})')
 plt.gca().invert_yaxis()
 st.pyplot(plt)
 
@@ -216,7 +225,7 @@ if prediction_choice == 'Quality':
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('Multi-class ROC Curve')
+    plt.title(f'Multi-class ROC Curve ({model_choice})')
     plt.legend(loc="lower right")
     st.pyplot(plt)
 else:
@@ -232,7 +241,7 @@ else:
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('ROC Curve')
+    plt.title(f'ROC Curve ({model_choice})')
     plt.legend(loc="lower right")
     st.pyplot(plt)
 
