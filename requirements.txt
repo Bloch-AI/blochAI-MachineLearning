@@ -4,4 +4,4 @@ numpy
 scikit-learn
 openpyxl
 matplotlib
-imbalanced-learn
+xgboost
