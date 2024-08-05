@@ -147,7 +147,7 @@ st.markdown(f'<div class="result-box">### Model Accuracy: {accuracy:.2f}</div>',
 
 # Feature importance and ROC Curve in one box
 with st.container():
-    st.markdown(f'<div class="result-box">', unsafe_allow_html=True)
+    st.markdown('<div class="result-box">', unsafe_allow_html=True)
     
     # Feature importance
     importance = model.feature_importances_
@@ -170,6 +170,7 @@ with st.container():
         try:
             y_prob = model.predict_proba(X_test)
             classes_present = np.unique(y_test)
+            quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
 
             fpr = {}
             tpr = {}
@@ -238,3 +239,4 @@ with st.sidebar:
 
 # Add footer
 st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved</p></div>', unsafe_allow_html=True)
+
