@@ -10,7 +10,6 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import xgboost as xgb
-from sklearn.pipeline import Pipeline
 
 # Custom CSS for styling the Streamlit app
 st.markdown("""
@@ -70,8 +69,18 @@ st.markdown('<div class="header"><h1>🍷 Wine Quality Prediction App</h1></div>
 # GitHub URL for the wine dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
 
+# Function to load data from GitHub
 @st.cache_data
 def load_data(url):
+    """
+    Load wine data from a given URL.
+    
+    Args:
+    url (str): URL of the dataset
+
+    Returns:
+    pandas.DataFrame or None: Loaded dataset or None if an error occurs
+    """
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -92,8 +101,10 @@ st.write('## Wine Dataset')
 st.dataframe(data.head(), height=150)
 
 # Preprocess the data
+# Convert color to numeric values
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
+# Define quality mapping
 quality_mapping = {
     'extremely dissatisfied': 0,
     'moderately dissatisfied': 1,
@@ -104,6 +115,7 @@ quality_mapping = {
     'extremely satisfied': 6
 }
 
+# Map quality values and remove rows with NaN quality
 data['quality'] = data['quality'].str.strip().map(quality_mapping)
 data.dropna(subset=['quality'], inplace=True)
 
@@ -127,35 +139,26 @@ else:
     target = 'color'
     features = data.drop(['quality', 'color'], axis=1).columns
 
-X = data[features]
-y = data[target]
+X = data[features].values
+y = data[target].values
+
+# Scale the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
 
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=test_size, random_state=42, stratify=y)
 
-# Create pipelines for both models
-rf_pipeline = Pipeline([
-    ('scaler', StandardScaler()),
-    ('rf', RandomForestClassifier(n_estimators=100, max_depth=10, min_samples_split=2, min_samples_leaf=1, class_weight='balanced', random_state=42))
-])
-
-xgb_pipeline = Pipeline([
-    ('scaler', StandardScaler()),
-    ('xgb', xgb.XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', n_estimators=100, max_depth=6, learning_rate=0.1, random_state=42))
-])
-
-# Choose the appropriate pipeline
+# Initialize and train the selected model
 if model_choice == 'Random Forest':
-    model_pipeline = rf_pipeline
-else:
-    model_pipeline = xgb_pipeline
+    model = RandomForestClassifier(n_estimators=100, max_depth=10, min_samples_split=2, min_samples_leaf=1, class_weight='balanced', random_state=42)
+else:  # XGBoost
+    model = xgb.XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', n_estimators=100, max_depth=6, learning_rate=0.1, random_state=42)
 
-# Train the model with a progress bar
-with st.spinner(f'Training {model_choice} model...'):
-    model_pipeline.fit(X_train, y_train)
+model.fit(X_train, y_train)
 
 # Make predictions on the test set
-y_pred = model_pipeline.predict(X_test)
+y_pred = model.predict(X_test)
 
 # Calculate performance metrics
 accuracy = accuracy_score(y_test, y_pred)
@@ -173,7 +176,8 @@ st.markdown(f'<div class="result-box">'
 
 # Make prediction based on user input
 input_df = pd.DataFrame([user_input])
-prediction = model_pipeline.predict(input_df)[0]
+input_scaled = scaler.transform(input_df)
+prediction = model.predict(input_scaled)[0]
 
 # Interpret the prediction
 if prediction_choice == 'Quality':
@@ -187,10 +191,9 @@ st.markdown(f'<div class="result-box">### Predicted {prediction_choice}: {predic
 
 # Calculate and display feature importances
 if model_choice == 'Random Forest':
-    importance = model_pipeline.named_steps['rf'].feature_importances_
+    importance = model.feature_importances_
 else:  # XGBoost
-    importance = model_pipeline.named_steps['xgb'].feature_importances_
-
+    importance = model.feature_importances_
 feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
 top_features = feature_importance.head(5)
 
@@ -207,7 +210,7 @@ st.pyplot(plt)
 st.write('### ROC Curve')
 if prediction_choice == 'Quality':
     # Multi-class ROC curve for Quality prediction
-    y_prob = model_pipeline.predict_proba(X_test)
+    y_prob = model.predict_proba(X_test)
     classes_present = np.unique(y)
     quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
 
@@ -227,7 +230,7 @@ if prediction_choice == 'Quality':
     st.pyplot(plt)
 else:
     # Binary ROC curve for Color prediction
-    y_prob = model_pipeline.predict_proba(X_test)[:, 1]
+    y_prob = model.predict_proba(X_test)[:, 1]
     fpr, tpr, _ = roc_curve(y_test, y_prob)
     roc_auc = auc(fpr, tpr)
 
