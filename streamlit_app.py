@@ -6,7 +6,6 @@ from io import BytesIO
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.impute import SimpleImputer
 
 # GitHub URL for the dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
@@ -18,7 +17,7 @@ def load_data(url):
         response = requests.get(url)
         response.raise_for_status()
         file = BytesIO(response.content)
-        data = pd.read_excel(file, engine='openpyxl') 
+        data = pd.read_excel(file, engine='openpyxl')
         return data
     except requests.exceptions.RequestException as e:
         st.error(f"Error loading data: {e}")
@@ -34,7 +33,7 @@ st.title('Wine Quality Prediction App')
 st.write('## Wine Dataset')
 st.write(data.head())
 
-st.write(data.info())  
+st.write(data.info())
 
 # Preprocessing
 st.write('## Preprocessing')
@@ -68,13 +67,30 @@ data['quality'] = data['quality'].map(
 )
 
 # Feature selection
-X = data.drop(['quality'], axis=1).values  
-y = data['quality'].values 
+X = data.drop(['quality'], axis=1).values
+y = data['quality'].values
+
+# Debug statements for checking shapes
+st.write(f"Shape of X: {X.shape}")
+st.write(f"Shape of y: {y.shape}")
 
 # Split the data
 st.write('## Train/Test Split')
-test_size = st.slider('Select test size', 0.1, 0.25, 0.2)  # Adjust slider options
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42) 
+test_size = st.slider('Select test size', 0.1, 0.5, 0.2)
+st.write(f"Selected test size: {test_size}")
+
+# Additional debug information
+st.write(f"Type of X: {type(X)}, Type of y: {type(y)}")
+st.write(f"First 5 elements of X: {X[:5]}")
+st.write(f"First 5 elements of y: {y[:5]}")
+
+try:
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+    st.write(f"Train features shape: {X_train.shape}, Test features shape: {X_test.shape}")
+    st.write(f"Train target shape: {y_train.shape}, Test target shape: {y_test.shape}")
+except ValueError as e:
+    st.error(f"Error during train/test split: {e}")
+    st.stop()
 
 # Train the model
 st.write('## Training Model')
@@ -101,4 +117,5 @@ for feature in data.drop(['quality'], axis=1).columns:
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
 st.write(f'### Predicted Quality: {prediction}')
+
 
