@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 import numpy as np
 from io import BytesIO
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_curve, auc
 import matplotlib.pyplot as plt
@@ -74,12 +74,11 @@ else:
 X = data[features].values
 y = data[target].values
 
-# Split the data
-try:
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
-except ValueError as e:
-    st.error(f"Error during train/test split: {e}")
-    st.stop()
+# Ensure that the test set contains all classes
+skf = StratifiedKFold(n_splits=int(1/test_size), shuffle=True, random_state=42)
+for train_index, test_index in skf.split(X, y):
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
 
 # Train the model
 st.write(f'## Training Model to Predict {prediction_choice}')
@@ -128,34 +127,30 @@ st.write('## ROC Curve')
 if prediction_choice == 'Quality':
     try:
         y_prob = model.predict_proba(X_test)
-        num_classes = len(quality_mapping)
+        classes_present = np.unique(y_test)
 
-        if y_prob.shape[1] != num_classes:
-            st.error(f"Unexpected number of classes in prediction probabilities. Expected {num_classes}, got {y_prob.shape[1]}.")
-        else:
-            fpr = {}
-            tpr = {}
-            roc_auc = {}
+        fpr = {}
+        tpr = {}
+        roc_auc = {}
 
-            for i in range(num_classes):
-                fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
-                roc_auc[i] = auc(fpr[i], tpr[i])
+        for i in classes_present:
+            fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
+            roc_auc[i] = auc(fpr[i], tpr[i])
 
-            # Plot all ROC curves
-            plt.figure()
-            colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
-            for i, color in zip(range(num_classes), colors):
-                if i in fpr and i in tpr:
-                    plt.plot(fpr[i], tpr[i], color=color, lw=2,
-                             label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
-            plt.plot([0, 1], [0, 1], 'k--', lw=2)
-            plt.xlim([0.0, 1.0])
-            plt.ylim([0.0, 1.05])
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            plt.title('Receiver Operating Characteristic (ROC) Curves')
-            plt.legend(loc='lower right')
-            st.pyplot(plt)
+        # Plot all ROC curves
+        plt.figure()
+        colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
+        for i, color in zip(classes_present, colors):
+            plt.plot(fpr[i], tpr[i], color=color, lw=2,
+                     label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
+        plt.plot([0, 1], [0, 1], 'k--', lw=2)
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Receiver Operating Characteristic (ROC) Curves')
+        plt.legend(loc='lower right')
+        st.pyplot(plt)
     except IndexError as e:
         st.error(f"Index error while plotting ROC curves: {e}")
 else:
