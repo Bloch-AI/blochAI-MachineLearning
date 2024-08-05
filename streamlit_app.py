@@ -35,9 +35,6 @@ st.write(data.head())
 
 # Preprocessing
 st.write('## Preprocessing')
-st.write(f"Initial data shape: {data.shape}")
-
-# Map color column
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
 # Mapping quality values to numeric
@@ -51,44 +48,17 @@ quality_mapping = {
     'extremly satisfied': 6
 }
 
-st.write(f"Unique values in quality before mapping: {data['quality'].unique()}")
 data['quality'] = data['quality'].map(quality_mapping)
-st.write(f"Unique values in quality after mapping: {data['quality'].unique()}")
-
-# Drop rows with NaN values in 'quality' after mapping
 data.dropna(subset=['quality'], inplace=True)
-st.write(f"Data shape after handling missing values: {data.shape}")
-
-# Check if quality contains any infinite values (should be handled by previous steps)
-if np.isinf(data['quality']).any():
-    st.error("Quality column contains infinite values.")
-    st.stop()
 
 # Feature selection
 X = data.drop(['quality'], axis=1).values
 y = data['quality'].values
 
-# Debug statements for checking shapes
-st.write(f"Shape of X: {X.shape}")
-st.write(f"Shape of y: {y.shape}")
-
 # Split the data
 st.write('## Train/Test Split')
 test_size = st.slider('Select test size', 0.1, 0.5, 0.2)
-st.write(f"Selected test size: {test_size}")
-
-# Additional debug information
-st.write(f"Type of X: {type(X)}, Type of y: {type(y)}")
-st.write(f"First 5 elements of X: {X[:5]}")
-st.write(f"First 5 elements of y: {y[:5]}")
-
-try:
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
-    st.write(f"Train features shape: {X_train.shape}, Test features shape: {X_test.shape}")
-    st.write(f"Train target shape: {y_train.shape}, Test target shape: {y_test.shape}")
-except ValueError as e:
-    st.error(f"Error during train/test split: {e}")
-    st.stop()
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
 # Train the model
 st.write('## Training Model')
@@ -114,4 +84,6 @@ for feature in data.drop(['quality'], axis=1).columns:
 
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
-st.write(f'### Predicted Quality: {prediction}')
+quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
+predicted_quality = quality_mapping_reverse[prediction]
+st.write(f'### Predicted Quality: {predicted_quality}')
