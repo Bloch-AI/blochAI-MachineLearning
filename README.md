@@ -1,4 +1,4 @@
-# 📦 Streamlit App Starter Kit 
+# 💻 Bloch.ai - Machine Learning Demo
 ```
 ⬆️ (Replace above with your app's name)
 ```
