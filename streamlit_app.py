@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score, roc_curve, auc
 import matplotlib.pyplot as plt
 
 # GitHub URL for the dataset
-url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
+url = 'https://raw.githubusercontent.com/Bloch-AI/b6lochAI-MachineLearning/master/wine.xlsx'
 
 # Function to load data from GitHub
 @st.cache_data
