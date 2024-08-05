@@ -33,15 +33,17 @@ st.title('Wine Quality Prediction App')
 st.write('## Wine Dataset')
 st.write(data.head())
 
-st.write(data.info())
-
 # Preprocessing
 st.write('## Preprocessing')
+st.write(f"Initial data shape: {data.shape}")
+
+# Map color column
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
 # Convert quality to numeric and handle missing values
 data['quality'] = pd.to_numeric(data['quality'], errors='coerce')
 data.dropna(subset=['quality'], inplace=True)
+st.write(f"Data shape after handling missing values: {data.shape}")
 
 # Check if quality contains any infinite values (should be handled by previous steps)
 if np.isinf(data['quality']).any():
@@ -65,6 +67,11 @@ data['quality'] = data['quality'].apply(map_quality)
 data['quality'] = data['quality'].map(
     {'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2, 'good': 3, 'excellent': 4}
 )
+st.write(f"Data shape after mapping quality: {data.shape}")
+
+# Check for any remaining NaNs or infinite values
+st.write(f"Number of NaNs in each column: {data.isna().sum()}")
+st.write(f"Number of infinite values in each column: {np.isinf(data).sum().sum()}")
 
 # Feature selection
 X = data.drop(['quality'], axis=1).values
@@ -117,5 +124,3 @@ for feature in data.drop(['quality'], axis=1).columns:
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
 st.write(f'### Predicted Quality: {prediction}')
-
-
