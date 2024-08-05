@@ -126,29 +126,33 @@ with st.sidebar:
 # ROC Curve
 st.write('## ROC Curve')
 if prediction_choice == 'Quality':
-    y_prob = model.predict_proba(X_test)
-    fpr = {}
-    tpr = {}
-    roc_auc = {}
+    if len(np.unique(y_test)) > 2:
+        y_prob = model.predict_proba(X_test)
+        fpr = {}
+        tpr = {}
+        roc_auc = {}
 
-    for i in range(len(quality_mapping)):
-        fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
-        roc_auc[i] = auc(fpr[i], tpr[i])
+        for i in range(len(quality_mapping)):
+            fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
+            roc_auc[i] = auc(fpr[i], tpr[i])
 
-    # Plot all ROC curves
-    plt.figure()
-    colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
-    for i, color in zip(range(len(quality_mapping)), colors):
-        plt.plot(fpr[i], tpr[i], color=color, lw=2,
-                 label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
-    plt.plot([0, 1], [0, 1], 'k--', lw=2)
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic (ROC) Curves')
-    plt.legend(loc='lower right')
-    st.pyplot(plt)
+        # Plot all ROC curves
+        plt.figure()
+        colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
+        for i, color in zip(range(len(quality_mapping)), colors):
+            if i in fpr and i in tpr:
+                plt.plot(fpr[i], tpr[i], color=color, lw=2,
+                         label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
+        plt.plot([0, 1], [0, 1], 'k--', lw=2)
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Receiver Operating Characteristic (ROC) Curves')
+        plt.legend(loc='lower right')
+        st.pyplot(plt)
+    else:
+        st.warning("ROC curve not applicable for binary classification in this case.")
 else:
     y_prob = model.predict_proba(X_test)[:, 1]
     fpr, tpr, _ = roc_curve(y_test, y_prob)
