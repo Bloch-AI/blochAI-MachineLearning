@@ -75,7 +75,7 @@ y = data['quality'].values # converting to np array
 
 # Split the data
 st.write('## Train/Test Split')
-test_size = st.slider('Select test size', 0.1, 0.5, 0.2)
+test_size = st.slider('Select test size', 0.1, 0.15, 0.2)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
 # Train the model
