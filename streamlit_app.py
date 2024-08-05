@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.impute import SimpleImputer
 
-# GitHub URL for the dataset (Corrected)
+# GitHub URL for the dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
 
 # Function to load data from GitHub
@@ -42,11 +42,13 @@ data['color'] = data['color'].map({'red': 0, 'white': 1})
 
 # Convert quality to numeric and handle missing values
 data['quality'] = pd.to_numeric(data['quality'], errors='coerce')
+data.dropna(subset=['quality'], inplace=True)
 
-# Check if quality contains any infinite values
-if data['quality'].isnull().values.any() or np.isinf(data['quality']).any():
-    st.error("Quality column contains non-numeric or missing values.")
+# Check if quality contains any infinite values (should be handled by previous steps)
+if np.isinf(data['quality']).any():
+    st.error("Quality column contains infinite values.")
     st.stop()
+
 
 # Quality Mapping
 def map_quality(x):
@@ -101,4 +103,3 @@ for feature in X.columns:
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
 st.write(f'### Predicted Quality: {prediction}')
-
