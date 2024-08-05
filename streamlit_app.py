@@ -69,14 +69,14 @@ data['quality'] = data['quality'].map(
     {'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2, 'good': 3, 'excellent': 4}
 )
 
-# Feature selection
-X = data.drop(['quality'], axis=1)
+# Feature selection (X converted to NumPy array)
+X = data.drop(['quality'], axis=1).values  
 y = data['quality'].values # converting to np array
 
 # Split the data
 st.write('## Train/Test Split')
-test_size = st.slider('Select test size', 0.1, 0.15, 0.2)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+test_size = st.slider('Select test size', 0.1, 0.15, 0.2, 0.25)  # Adjust slider options
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42) 
 
 # Train the model
 st.write('## Training Model')
@@ -91,7 +91,7 @@ st.write(f'### Accuracy: {accuracy:.2f}')
 # Feature importance
 st.write('## Feature Importance')
 importance = model.feature_importances_
-feature_importance = pd.DataFrame({'Feature': X.columns, 'Importance': importance}).sort_values(by='Importance', ascending=False)
+feature_importance = pd.DataFrame({'Feature': data.drop(['quality'], axis=1).columns, 'Importance': importance}).sort_values(by='Importance', ascending=False)
 st.write(feature_importance)
 
 # Predict on user input
@@ -103,4 +103,5 @@ for feature in X.columns:
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
 st.write(f'### Predicted Quality: {prediction}')
+
 
