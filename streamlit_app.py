@@ -213,8 +213,10 @@ if prediction_choice == 'Quality':
     plt.title('Receiver Operating Characteristic (ROC) Curves')
     plt.legend(loc='lower right')
     st.pyplot(plt)
+
 except IndexError as e:
-        st.error(f"Index error while plotting ROC curves: {e}")
+    st.error(f"Index error while plotting ROC curves: {e}")
+
 else:
     try:
         y_prob = model.predict_proba(X_test)[:, 1]
