@@ -41,7 +41,9 @@ st.write(f"Initial data shape: {data.shape}")
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
 # Convert quality to numeric and handle missing values
+st.write(f"Unique values in quality before conversion: {data['quality'].unique()}")
 data['quality'] = pd.to_numeric(data['quality'], errors='coerce')
+st.write(f"Unique values in quality after conversion to numeric: {data['quality'].unique()}")
 data.dropna(subset=['quality'], inplace=True)
 st.write(f"Data shape after handling missing values: {data.shape}")
 
@@ -63,10 +65,15 @@ def map_quality(x):
     else:
         return 'excellent'
 
-data['quality'] = data['quality'].apply(map_quality)
-data['quality'] = data['quality'].map(
-    {'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2, 'good': 3, 'excellent': 4}
-)
+if not data['quality'].empty:
+    data['quality'] = data['quality'].apply(map_quality)
+    data['quality'] = data['quality'].map(
+        {'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2, 'good': 3, 'excellent': 4}
+    )
+else:
+    st.error("No valid quality data available after conversion.")
+    st.stop()
+
 st.write(f"Data shape after mapping quality: {data.shape}")
 
 # Check for any remaining NaNs or infinite values
