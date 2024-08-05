@@ -44,14 +44,14 @@ st.markdown("""
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: #333;
+        background-color: #f5f5f5;
         color: white;
         text-align: center;
         padding: 1rem;
     }
     .header {
         width: 100%;
-        background-color: #333;
+        background-color: #f5f5f5;
         color: white;
         text-align: center;
         padding: 1rem;
@@ -61,7 +61,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Add header
-st.markdown('<div class="header"><h1>Welcome to the Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="header"><h1>🍷 Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
 
 # GitHub URL for the dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
@@ -85,7 +85,6 @@ if data is None:
     st.stop()
 
 # Display dataset
-st.title('🍷 Bloch.ai - Wine Quality Prediction App')
 st.write('## Wine Dataset')
 st.dataframe(data.head(), height=150)
 
