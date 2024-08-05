@@ -8,11 +8,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.impute import SimpleImputer
 
-# GitHub URL for the dataset
+# GitHub URL for the dataset (Corrected)
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
 
 # Function to load data from GitHub
-@st.cache_data  
+@st.cache_data
 def load_data(url):
     try:
         response = requests.get(url)
@@ -34,31 +34,38 @@ st.title('Wine Quality Prediction App')
 st.write('## Wine Dataset')
 st.write(data.head())
 
+st.write(data.info())  
+
 # Preprocessing
 st.write('## Preprocessing')
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
-# Corrected quality mapping
-data['quality'] = data['quality'].apply(lambda x: 'bad' if x <= 4 else 'slightly dissatisfied' if x <= 6 else 'neutral' if x == 7 else 'good' if x <= 8 else 'excellent')
-data['quality'] = data['quality'].map({'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2, 'good': 3, 'excellent': 4})
+# Convert quality to numeric and handle missing values
+data['quality'] = pd.to_numeric(data['quality'], errors='coerce')
 
-# Check if y contains any infinite values
+# Check if quality contains any infinite values
 if data['quality'].isnull().values.any() or np.isinf(data['quality']).any():
-    st.error("Target variable (y) contains NaN or infinite values.")
+    st.error("Quality column contains non-numeric or missing values.")
     st.stop()
 
-# Display dataset
-st.title('Wine Quality Prediction App')
-st.write('## Wine Dataset')
-st.write(data.head())
+# Quality Mapping
+def map_quality(x):
+    if x <= 4:
+        return 'bad'
+    elif x <= 6:
+        return 'slightly dissatisfied'
+    elif x == 7:
+        return 'neutral'
+    elif x <= 8:
+        return 'good'
+    else:
+        return 'excellent'
 
-# Preprocessing
-st.write('## Preprocessing')
-data['color'] = data['color'].map({'red': 0, 'white': 1})
-data['quality'] = data['quality'].map({
-    'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2,
-    'good': 3, 'excellent': 4
-})
+
+data['quality'] = data['quality'].apply(map_quality)
+data['quality'] = data['quality'].map(
+    {'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2, 'good': 3, 'excellent': 4}
+)
 
 # Feature selection
 X = data.drop(['quality'], axis=1)
@@ -94,3 +101,4 @@ for feature in X.columns:
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
 st.write(f'### Predicted Quality: {prediction}')
+
