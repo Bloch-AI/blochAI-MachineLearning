@@ -71,7 +71,7 @@ data['quality'] = data['quality'].map(
 
 # Feature selection
 X = data.drop(['quality'], axis=1)
-y = data['quality']
+y = data['quality'].values # converting to np array
 
 # Split the data
 st.write('## Train/Test Split')
@@ -103,3 +103,4 @@ for feature in X.columns:
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
 st.write(f'### Predicted Quality: {prediction}')
+
