@@ -34,10 +34,10 @@ st.write('## Wine Dataset')
 st.write(data.head())
 
 # Preprocessing
-st.write('## Preprocessing')
+#st.write('## Preprocessing')
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
-st.write(data.info())
+#st.write(data.info())
 
 # Enhanced Quality Mapping
 quality_mapping = {
