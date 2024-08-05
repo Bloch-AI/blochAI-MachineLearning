@@ -8,7 +8,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_curve, auc
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectKBest, f_classif
-from imblearn.over_sampling import SMOTE
 import matplotlib.pyplot as plt
 
 # Custom CSS for styling
@@ -69,17 +68,8 @@ st.markdown('<div class="header"><h1>🍷 Wine Quality Prediction App</h1></div>
 # GitHub URL for the dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
 
-
-# GitHub URL for the dataset
-url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
-
-# Function to load data from GitHub
 @st.cache_data
 def load_data(url):
-    """
-    Load data from a given URL.
-    Returns a pandas DataFrame.
-    """
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -90,19 +80,15 @@ def load_data(url):
         st.error(f"Error loading data: {e}")
         return None
 
-# Load data
 data = load_data(url)
 if data is None:
     st.stop()
 
-# Display dataset
 st.write('## Wine Dataset')
 st.dataframe(data.head(), height=150)
 
-# Preprocessing
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
-# Enhanced Quality Mapping
 quality_mapping = {
     'extremely dissatisfied': 0,
     'moderately dissatisfied': 1,
@@ -113,23 +99,19 @@ quality_mapping = {
     'extremely satisfied': 6
 }
 
-# Ensure all quality values are mapped correctly
 data['quality'] = data['quality'].str.strip().map(quality_mapping)
 data.dropna(subset=['quality'], inplace=True)
 
-# Sidebar for parameter selection and prediction input
 with st.sidebar:
     st.write('## Model Parameters')
     prediction_choice = st.radio("Choose what to predict", ('Quality', 'Color'))
     test_size = st.slider('Test Size', 0.1, 0.5, 0.2)
 
-    # Input features for prediction
     st.write(f'## Predict Wine {prediction_choice}')
     user_input = {}
     for feature in data.drop(['quality', 'color'], axis=1).columns:
         user_input[feature] = st.number_input(f'{feature}', float(data[feature].min()), float(data[feature].max()), float(data[feature].mean()))
 
-# Feature selection
 if prediction_choice == 'Quality':
     target = 'quality'
     features = data.drop(['quality', 'color'], axis=1).columns
@@ -140,51 +122,36 @@ else:
 X = data[features].values
 y = data[target].values
 
-# Feature scaling
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Feature selection
-selector = SelectKBest(f_classif, k=10)  # Select top 10 features
+selector = SelectKBest(f_classif, k=10)
 X_selected = selector.fit_transform(X_scaled, y)
 selected_feature_indices = selector.get_support(indices=True)
 selected_features = features[selected_feature_indices]
 
-# Ensure that the test set contains all classes
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-# Initialize lists to store results
-accuracies = []
-precisions = []
-recalls = []
-f1_scores = []
+accuracies, precisions, recalls, f1_scores = [], [], [], []
 
 for train_index, test_index in skf.split(X_selected, y):
     X_train, X_test = X_selected[train_index], X_selected[test_index]
     y_train, y_test = y[train_index], y[test_index]
 
-    # Apply SMOTE for balancing (only for training data)
-    smote = SMOTE(random_state=42)
-    X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
-
-    # Hyperparameter tuning
     param_grid = {
         'n_estimators': [100, 200],
         'max_depth': [None, 10, 20],
         'min_samples_split': [2, 5],
-        'min_samples_leaf': [1, 2]
+        'min_samples_leaf': [1, 2],
+        'class_weight': ['balanced', 'balanced_subsample', None]
     }
     model = RandomForestClassifier(random_state=42)
     grid_search = GridSearchCV(model, param_grid, cv=3, n_jobs=-1, scoring='accuracy')
-    grid_search.fit(X_train_resampled, y_train_resampled)
+    grid_search.fit(X_train, y_train)
 
-    # Get the best model
     best_model = grid_search.best_estimator_
-
-    # Make predictions
     y_pred = best_model.predict(X_test)
 
-    # Calculate metrics
     accuracy = accuracy_score(y_test, y_pred)
     precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted')
 
@@ -193,7 +160,6 @@ for train_index, test_index in skf.split(X_selected, y):
     recalls.append(recall)
     f1_scores.append(f1)
 
-# Display average metrics
 st.write(f'## Model Performance ({prediction_choice})')
 st.markdown(f'<div class="result-box">'
             f'### Average Metrics (5-fold cross-validation):<br>'
@@ -203,12 +169,9 @@ st.markdown(f'<div class="result-box">'
             f'F1-score: {np.mean(f1_scores):.2f} (+/- {np.std(f1_scores):.2f})'
             f'</div>', unsafe_allow_html=True)
 
-# Retrain the model on the entire dataset for final predictions
-X_resampled, y_resampled = smote.fit_resample(X_selected, y)
 final_model = RandomForestClassifier(**grid_search.best_params_, random_state=42)
-final_model.fit(X_resampled, y_resampled)
+final_model.fit(X_selected, y)
 
-# Make prediction from sidebar input
 input_df = pd.DataFrame([user_input])
 input_scaled = scaler.transform(input_df)
 input_selected = selector.transform(input_scaled)
@@ -220,15 +183,12 @@ if prediction_choice == 'Quality':
 else:
     predicted_result = 'white' if prediction == 1 else 'red'
 
-# Display the prediction result
 st.markdown(f'<div class="result-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
-# Feature importance
 importance = final_model.feature_importances_
 feature_importance = pd.DataFrame({'Feature': selected_features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
 top_features = feature_importance.head(5)
 
-# Plot top 5 feature importances
 st.write('### Top 5 Feature Importances')
 plt.figure(figsize=(10, 5))
 plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
@@ -238,7 +198,6 @@ plt.title('Top 5 Feature Importances')
 plt.gca().invert_yaxis()
 st.pyplot(plt)
 
-# ROC Curve
 st.write('### ROC Curve')
 if prediction_choice == 'Quality':
     y_prob = final_model.predict_proba(X_selected)
