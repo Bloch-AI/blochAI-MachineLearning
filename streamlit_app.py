@@ -33,11 +33,13 @@ st.title('Wine Quality Prediction App')
 st.write('## Wine Dataset')
 st.write(data.head())
 
+st.write(data.info())
+
 # Preprocessing
 st.write('## Preprocessing')
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
-# Mapping quality values to numeric
+# Enhanced Quality Mapping
 quality_mapping = {
     'extremly dissatisfied': 0,
     'moderately dissatisfied': 1,
@@ -48,16 +50,16 @@ quality_mapping = {
     'extremly satisfied': 6
 }
 
-data['quality'] = data['quality'].map(quality_mapping)
+data['quality'] = data['quality'].astype(str).map(quality_mapping)
 data.dropna(subset=['quality'], inplace=True)
 
-# Feature selection
+# Feature selection (X converted to NumPy array)
 X = data.drop(['quality'], axis=1).values
-y = data['quality'].values
+y = data['quality'].values  # converting to np array
 
 # Split the data
 st.write('## Train/Test Split')
-test_size = st.slider('Select test size', 0.1, 0.5, 0.2)
+test_size = st.slider('Select test size', 0.1, 0.15, 0.2, 0.25)  # Adjust slider options
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
 # Train the model
@@ -84,6 +86,7 @@ for feature in data.drop(['quality'], axis=1).columns:
 
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
-quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
+
+quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}  # Reverse the mapping
 predicted_quality = quality_mapping_reverse[prediction]
 st.write(f'### Predicted Quality: {predicted_quality}')
