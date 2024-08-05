@@ -6,8 +6,7 @@ from io import BytesIO
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.impute   
- import SimpleImputer   
+from sklearn.impute import SimpleImputer   
 
 
 # GitHub URL for the dataset (Corrected)
