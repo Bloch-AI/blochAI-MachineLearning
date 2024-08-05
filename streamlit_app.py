@@ -94,14 +94,8 @@ feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance
 st.write(feature_importance)
 
 # Make prediction from sidebar input
-if prediction_choice == 'Quality':
-    input_df = pd.DataFrame([user_input])
-else:
-    user_input['color'] = st.number_input('color', 0, 1, 1)  # Adding the color feature when predicting quality
-    input_df = pd.DataFrame([user_input])
-
-# Ensure input_df has all the necessary features
-input_df = input_df.reindex(columns=features, fill_value=0)
+input_df = pd.DataFrame([user_input])
+input_df = input_df.reindex(columns=features, fill_value=0)  # Ensure input_df has all necessary features
 
 prediction = model.predict(input_df)[0]
 
@@ -113,9 +107,9 @@ else:
 
 st.sidebar.write(f'### Predicted {prediction_choice}: {predicted_result}')
 
-# ROC Curve for Quality prediction
+# ROC Curve
+st.write('## ROC Curve')
 if prediction_choice == 'Quality':
-    st.write('## ROC Curve')
     y_prob = model.predict_proba(X_test)
     fpr = {}
     tpr = {}
@@ -137,5 +131,21 @@ if prediction_choice == 'Quality':
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic (ROC) Curves')
+    plt.legend(loc='lower right')
+    st.pyplot(plt)
+else:
+    y_prob = model.predict_proba(X_test)[:, 1]
+    fpr, tpr, _ = roc_curve(y_test, y_prob)
+    roc_auc = auc(fpr, tpr)
+
+    # Plot ROC curve
+    plt.figure()
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:0.2f})')
+    plt.plot([0, 1], [0, 1], 'k--', lw=2)
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
     plt.legend(loc='lower right')
     st.pyplot(plt)
