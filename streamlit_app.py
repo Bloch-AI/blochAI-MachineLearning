@@ -8,8 +8,60 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_curve, auc
 import matplotlib.pyplot as plt
 
+# Custom CSS for styling
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f5f5f5;
+    }
+    .block-container {
+        padding: 2rem;
+    }
+    .sidebar .sidebar-content {
+        background-color: #f0f0f5;
+        padding: 2rem;
+    }
+    .prediction-box, .accuracy-box {
+        padding: 10px;
+        border: 2px solid black;
+        background-color: lightyellow;
+        text-align: center;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .feature-importance {
+        margin-top: 20px;
+    }
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 1rem;
+    }
+    .header {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Add header
-st.markdown('<div class="header"><h1> 🍷 Wine Quality & Colour Prediction App</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="header"><h1>Welcome to the Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
 
 # GitHub URL for the dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
@@ -33,6 +85,7 @@ if data is None:
     st.stop()
 
 # Display dataset
+st.title('🍷 Bloch.ai - Wine Quality Prediction App')
 st.write('## Wine Dataset')
 st.dataframe(data.head(), height=150)
 
@@ -84,14 +137,14 @@ for train_index, test_index in skf.split(X, y):
     y_train, y_test = y[train_index], y[test_index]
 
 # Train the model
-st.write(f'## Model Accuracy')
+st.write(f'## Training Model to Predict {prediction_choice}')
 model = RandomForestClassifier()
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 # Display accuracy
 accuracy = accuracy_score(y_test, y_pred)
-st.write(f'### Accuracy: {accuracy:.2f}')
+st.markdown(f'<div class="accuracy-box">### Model Accuracy: {accuracy:.2f}</div>', unsafe_allow_html=True)
 
 # Feature importance
 importance = model.feature_importances_
@@ -177,7 +230,6 @@ else:
         st.pyplot(plt)
     except IndexError as e:
         st.error(f"Index error while plotting ROC curves: {e}")
-
 
 # Add footer
 st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved</p></div>', unsafe_allow_html=True)
