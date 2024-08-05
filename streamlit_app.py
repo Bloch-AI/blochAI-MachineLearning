@@ -48,7 +48,8 @@ quality_mapping = {
     'extremely satisfied': 6
 }
 
-data['quality'] = data['quality'].astype(str).map(quality_mapping)
+# Ensure all quality values are mapped correctly
+data['quality'] = data['quality'].str.strip().map(quality_mapping)
 data.dropna(subset=['quality'], inplace=True)
 
 # Sidebar for parameter selection and prediction input
