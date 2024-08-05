@@ -134,7 +134,8 @@ if prediction_choice == 'Quality':
         roc_auc = {}
 
         for i in classes_present:
-            fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
+            i = int(i)  # Ensure i is an integer
+            fpr[i], tpr[i], _ = roc_curve(y_test == i, y_prob[:, i])
             roc_auc[i] = auc(fpr[i], tpr[i])
 
         # Plot all ROC curves
