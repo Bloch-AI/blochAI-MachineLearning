@@ -35,10 +35,6 @@ st.write(data.head())
 
 st.write(data.info())
 
-# Preprocessing
-st.write('## Preprocessing')
-data['color'] = data['color'].map({'red': 0, 'white': 1})
-
 # Enhanced Quality Mapping
 quality_mapping = {
     'extremly dissatisfied': 0,
