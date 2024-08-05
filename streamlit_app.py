@@ -54,23 +54,29 @@ data.dropna(subset=['quality'], inplace=True)
 # Sidebar for parameter selection and prediction input
 with st.sidebar:
     st.write('## Model Parameters')
+    prediction_choice = st.radio("Choose what to predict", ('Quality', 'Color'))
     test_size = st.slider('Test Size', 0.1, 0.5, 0.2)
 
     # Input features for prediction
-    st.write('## Predict Wine Quality')
+    st.write(f'## Predict Wine {prediction_choice}')
     user_input = {}
-    for feature in data.drop(['quality'], axis=1).columns:
+    for feature in data.drop(['quality', 'color'], axis=1).columns:
         user_input[feature] = st.number_input(f'{feature}', float(data[feature].min()), float(data[feature].max()), float(data[feature].mean()))
 
-# Feature selection (X converted to NumPy array)
-X = data.drop(['quality'], axis=1).values
-y = data['quality'].values
+# Feature selection
+if prediction_choice == 'Quality':
+    target = 'quality'
+else:
+    target = 'color'
+
+X = data.drop([target], axis=1).values
+y = data[target].values
 
 # Split the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
 # Train the model
-st.write('## Training Model')
+st.write(f'## Training Model to Predict {prediction_choice}')
 model = RandomForestClassifier()
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
@@ -82,38 +88,44 @@ st.write(f'### Accuracy: {accuracy:.2f}')
 # Feature importance
 st.write('## Feature Importance')
 importance = model.feature_importances_
-feature_importance = pd.DataFrame({'Feature': data.drop(['quality'], axis=1).columns, 'Importance': importance}).sort_values(by='Importance', ascending=False)
+feature_importance = pd.DataFrame({'Feature': data.drop([target], axis=1).columns, 'Importance': importance}).sort_values(by='Importance', ascending=False)
 st.write(feature_importance)
 
 # Make prediction from sidebar input
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
-quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
-predicted_quality = quality_mapping_reverse[prediction]
-st.sidebar.write(f'### Predicted Quality: {predicted_quality}')  # Display prediction in sidebar
 
-# ROC Curve
-st.write('## ROC Curve')
-y_prob = model.predict_proba(X_test)
-fpr = {}
-tpr = {}
-roc_auc = {}
+if prediction_choice == 'Quality':
+    quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
+    predicted_result = quality_mapping_reverse[prediction]
+else:
+    predicted_result = 'white' if prediction == 1 else 'red'
 
-for i in range(len(quality_mapping)):
-    fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
-    roc_auc[i] = auc(fpr[i], tpr[i])
+st.sidebar.write(f'### Predicted {prediction_choice}: {predicted_result}')
 
-# Plot all ROC curves
-plt.figure()
-colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
-for i, color in zip(range(len(quality_mapping)), colors):
-    plt.plot(fpr[i], tpr[i], color=color, lw=2,
-             label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
-plt.plot([0, 1], [0, 1], 'k--', lw=2)
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('Receiver Operating Characteristic (ROC) Curves')
-plt.legend(loc='lower right')
-st.pyplot(plt)
+# ROC Curve for Quality prediction
+if prediction_choice == 'Quality':
+    st.write('## ROC Curve')
+    y_prob = model.predict_proba(X_test)
+    fpr = {}
+    tpr = {}
+    roc_auc = {}
+
+    for i in range(len(quality_mapping)):
+        fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
+        roc_auc[i] = auc(fpr[i], tpr[i])
+
+    # Plot all ROC curves
+    plt.figure()
+    colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
+    for i, color in zip(range(len(quality_mapping)), colors):
+        plt.plot(fpr[i], tpr[i], color=color, lw=2,
+                 label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
+    plt.plot([0, 1], [0, 1], 'k--', lw=2)
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curves')
+    plt.legend(loc='lower right')
+    st.pyplot(plt)
