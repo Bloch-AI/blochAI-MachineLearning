@@ -39,8 +39,29 @@ st.markdown("""
     .feature-importance {
         margin-top: 20px;
     }
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 1rem;
+    }
+    .header {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
     </style>
     """, unsafe_allow_html=True)
+
+# Add header
+st.markdown('<div class="header"><h1>Welcome to the Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
 
 # GitHub URL for the dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
@@ -209,3 +230,6 @@ else:
         st.pyplot(plt)
     except IndexError as e:
         st.error(f"Index error while plotting ROC curves: {e}")
+
+# Add footer
+st.markdown('<div class="footer"><p>© 2024 Bloch.ai - All Rights Reserved</p></div>',
