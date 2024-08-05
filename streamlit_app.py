@@ -1,4 +1,3 @@
-# Import necessary libraries
 import streamlit as st
 import pandas as pd
 import requests
@@ -61,8 +60,18 @@ st.markdown("""
         padding: 1rem;
         margin-bottom: 2rem;
     }
+    .explanation-box {
+        background-color: #E6F3FF;
+        border: 2px solid black;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
     </style>
     """, unsafe_allow_html=True)
+
+def explanation_box(text):
+    return st.markdown(f'<div class="explanation-box">{text}</div>', unsafe_allow_html=True)
 
 # Add header to the app
 st.markdown('<div class="header"><h1>🍷 Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
@@ -73,15 +82,6 @@ url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master
 # Function to load data from GitHub
 @st.cache_data
 def load_data(url):
-    """
-    Load wine data from a given URL.
-    
-    Args:
-    url (str): URL of the dataset
-
-    Returns:
-    pandas.DataFrame or None: Loaded dataset or None if an error occurs
-    """
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -99,17 +99,15 @@ if data is None:
 
 # Display the first few rows of the dataset
 st.write('## Wine Dataset')
-st.markdown("""
-    ⚠️ This table shows a sample of the wine dataset. You can sort the table 
+explanation_box("""
+    This table shows a sample of the wine dataset. You can sort the table 
     by clicking on the column headers.
 """)
 st.dataframe(data.head(), height=150)
 
 # Preprocess the data
-# Convert color to numeric values
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
-# Define quality mapping
 quality_mapping = {
     'extremely dissatisfied': 0,
     'moderately dissatisfied': 1,
@@ -120,27 +118,26 @@ quality_mapping = {
     'extremely satisfied': 6
 }
 
-# Map quality values and remove rows with NaN quality
 data['quality'] = data['quality'].str.strip().map(quality_mapping)
 data.dropna(subset=['quality'], inplace=True)
 
 # Sidebar for user inputs
 with st.sidebar:
-    st.markdown("""
-        ⚠️ You can adjust the options below to experiment with different model settings. 
+    explanation_box("""
+        You can adjust the options below to experiment with different model settings. 
         Note how the results update automatically!
     """)
     
     st.write('## Model Parameters')
     
-    st.markdown("""
-        ⚠️ Choose whether to predict wine quality (how good the wine is) or 
+    explanation_box("""
+        Choose whether to predict wine quality (how good the wine is) or 
         colour (red or white). This determines what the model will try to guess.
     """)
     prediction_choice = st.radio("Choose what to predict", ('Quality', 'Color'))
     
-    st.markdown("""
-        ⚠️ Select which type of machine learning model to use. Each model works 
+    explanation_box("""
+        Select which type of machine learning model to use. Each model works 
         differently and may give varied results:
         - Random Forest: Uses many decision trees and takes a vote
         - XGBoost: Builds trees one after another, learning from mistakes
@@ -148,15 +145,15 @@ with st.sidebar:
     """)
     model_choice = st.radio("Choose model", ('Random Forest', 'XGBoost', 'Decision Tree'))
     
-    st.markdown("""
-        ⚠️ This determines how much of the data is used for testing the model. 
+    explanation_box("""
+        This determines how much of the data is used for testing the model. 
         A larger test size means more data for evaluating the model, but less for training it.
     """)
     test_size = st.slider('Test Size', 0.1, 0.5, 0.2)
 
     st.write('## Model Hyperparameters')
-    st.markdown("""
-        ⚠️ These settings control how the model learns. Adjusting them can 
+    explanation_box("""
+        These settings control how the model learns. Adjusting them can 
         affect the model's performance:
         - Number of trees: More trees can improve accuracy but take longer to run
         - Max depth: Deeper trees can capture more complex patterns but may overfit
@@ -239,8 +236,8 @@ precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, avera
 
 # Display model performance metrics
 st.write(f'## Model Performance ({model_choice} - {prediction_choice})')
-st.markdown("""
-    ⚠️ These metrics show how well the model is performing:
+explanation_box("""
+    These metrics show how well the model is performing:
     - Accuracy: Percentage of correct predictions
     - Precision: How often the model is correct when it predicts a positive result
     - Recall: How often the model correctly identifies all positive cases
@@ -276,8 +273,8 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     top_features = feature_importance.head(5)
 
     st.write('### Top 5 Feature Importances')
-    st.markdown("""
-        ⚠️ This chart shows which wine characteristics are most important for making predictions. 
+    explanation_box("""
+        This chart shows which wine characteristics are most important for making predictions. 
         Longer bars indicate more influential features.
     """)
     plt.figure(figsize=(10, 5))
@@ -290,8 +287,8 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
 
 # Plot ROC curve
 st.write('### ROC Curve')
-st.markdown("""
-    ⚠️ The ROC curve shows how well the model can distinguish between classes. 
+explanation_box("""
+    The ROC curve shows how well the model can distinguish between classes. 
     A curve closer to the top-left corner indicates better performance. 
     The AUC (Area Under Curve) summarises this in a single number - higher is better.
 """)
