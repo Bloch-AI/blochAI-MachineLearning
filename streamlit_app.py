@@ -238,5 +238,5 @@ with st.sidebar:
     st.markdown(f'<div class="prediction-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # Add footer
-st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved. www.bloch.ai </p></div>', unsafe_allow_html=True)
 
