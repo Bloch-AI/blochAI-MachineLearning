@@ -143,8 +143,9 @@ if prediction_choice == 'Quality':
         plt.figure()
         colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
         for i, color in zip(classes_present, colors):
-            plt.plot(fpr[i], tpr[i], color=color, lw=2,
-                     label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
+            if i in fpr and i in tpr:
+                plt.plot(fpr[i], tpr[i], color=color, lw=2,
+                         label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
         plt.plot([0, 1], [0, 1], 'k--', lw=2)
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
