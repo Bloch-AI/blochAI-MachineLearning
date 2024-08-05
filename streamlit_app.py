@@ -30,7 +30,6 @@ if data is None:
     st.stop()
 
 # Display dataset
-st.title('Bloch.ai')
 st.title('Wine Quality Prediction App')
 st.write('## Wine Dataset')
 st.write(data.head())
@@ -40,13 +39,13 @@ data['color'] = data['color'].map({'red': 0, 'white': 1})
 
 # Enhanced Quality Mapping
 quality_mapping = {
-    'extremly dissatisfied': 0,
-    'moderately dissatisfied': 1,
-    'slightly dissatisfied': 2,
-    'neutral': 3,
-    'slightly satisfied': 4,
-    'moderately satisfied': 5,
-    'extremly satisfied': 6
+    'Extremely dissatisfied': 0,
+    'Moderately dissatisfied': 1,
+    'Slightly dissatisfied': 2,
+    'Neutral': 3,
+    'Slightly satisfied': 4,
+    'Moderately satisfied': 5,
+    'Extremely satisfied': 6
 }
 
 data['quality'] = data['quality'].astype(str).map(quality_mapping)
@@ -74,10 +73,6 @@ else:
 
 X = data[features].values
 y = data[target].values
-
-# Debug information
-st.write(f'Features: {features}')
-st.write(f'X shape: {X.shape}, y shape: {y.shape}')
 
 # Split the data
 try:
