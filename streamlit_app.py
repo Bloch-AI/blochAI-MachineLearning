@@ -162,7 +162,7 @@ else:
     predicted_result = 'white' if prediction == 1 else 'red'
 
 # Display the prediction result just below the model accuracy box
-st.markdown(f'<div class="prediction-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="result-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # Feature importance and ROC Curve in one box
 with st.container():
