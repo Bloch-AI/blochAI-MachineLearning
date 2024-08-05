@@ -49,7 +49,6 @@ if np.isinf(data['quality']).any():
     st.error("Quality column contains infinite values.")
     st.stop()
 
-
 # Quality Mapping
 def map_quality(x):
     if x <= 4:
@@ -63,19 +62,18 @@ def map_quality(x):
     else:
         return 'excellent'
 
-
 data['quality'] = data['quality'].apply(map_quality)
 data['quality'] = data['quality'].map(
     {'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2, 'good': 3, 'excellent': 4}
 )
 
-# Feature selection (X converted to NumPy array)
+# Feature selection
 X = data.drop(['quality'], axis=1).values  
-y = data['quality'].values # converting to np array
+y = data['quality'].values 
 
 # Split the data
 st.write('## Train/Test Split')
-test_size = st.slider('Select test size', 0.1, 0.15, 0.2, 0.25)  # Adjust slider options
+test_size = st.slider('Select test size', 0.1, 0.25, 0.2)  # Adjust slider options
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42) 
 
 # Train the model
@@ -97,11 +95,10 @@ st.write(feature_importance)
 # Predict on user input
 st.write('## Predict Wine Quality')
 user_input = {}
-for feature in X.columns:
+for feature in data.drop(['quality'], axis=1).columns:
     user_input[feature] = st.number_input(f'{feature}', float(data[feature].min()), float(data[feature].max()), float(data[feature].mean()))
 
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
 st.write(f'### Predicted Quality: {prediction}')
-
 
