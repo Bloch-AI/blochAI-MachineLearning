@@ -1,3 +1,4 @@
+# Import necessary libraries
 import streamlit as st
 import pandas as pd
 import requests
@@ -9,7 +10,7 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
-# Custom CSS for styling
+# Custom CSS for styling the Streamlit app
 st.markdown("""
     <style>
     .main {
@@ -61,15 +62,24 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Add header
+# Add header to the app
 st.markdown('<div class="header"><h1>🍷 Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
 
-
-# GitHub URL for the dataset
+# GitHub URL for the wine dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
 
+# Function to load data from GitHub
 @st.cache_data
 def load_data(url):
+    """
+    Load wine data from a given URL.
+    
+    Args:
+    url (str): URL of the dataset
+
+    Returns:
+    pandas.DataFrame or None: Loaded dataset or None if an error occurs
+    """
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -80,15 +90,20 @@ def load_data(url):
         st.error(f"Error loading data: {e}")
         return None
 
+# Load the dataset
 data = load_data(url)
 if data is None:
     st.stop()
 
+# Display the first few rows of the dataset
 st.write('## Wine Dataset')
 st.dataframe(data.head(), height=150)
 
+# Preprocess the data
+# Convert color to numeric values
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
+# Define quality mapping
 quality_mapping = {
     'extremely dissatisfied': 0,
     'moderately dissatisfied': 1,
@@ -99,9 +114,11 @@ quality_mapping = {
     'extremely satisfied': 6
 }
 
+# Map quality values and remove rows with NaN quality
 data['quality'] = data['quality'].str.strip().map(quality_mapping)
 data.dropna(subset=['quality'], inplace=True)
 
+# Sidebar for user inputs
 with st.sidebar:
     st.write('## Model Parameters')
     prediction_choice = st.radio("Choose what to predict", ('Quality', 'Color'))
@@ -112,6 +129,7 @@ with st.sidebar:
     for feature in data.drop(['quality', 'color'], axis=1).columns:
         user_input[feature] = st.number_input(f'{feature}', float(data[feature].min()), float(data[feature].max()), float(data[feature].mean()))
 
+# Prepare features and target based on user's choice
 if prediction_choice == 'Quality':
     target = 'quality'
     features = data.drop(['quality', 'color'], axis=1).columns
@@ -122,19 +140,25 @@ else:
 X = data[features].values
 y = data[target].values
 
+# Scale the features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
+# Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=test_size, random_state=42, stratify=y)
 
+# Initialize and train the Random Forest model
 model = RandomForestClassifier(n_estimators=100, max_depth=10, min_samples_split=2, min_samples_leaf=1, class_weight='balanced', random_state=42)
 model.fit(X_train, y_train)
 
+# Make predictions on the test set
 y_pred = model.predict(X_test)
 
+# Calculate performance metrics
 accuracy = accuracy_score(y_test, y_pred)
 precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted')
 
+# Display model performance metrics
 st.write(f'## Model Performance ({prediction_choice})')
 st.markdown(f'<div class="result-box">'
             f'### Metrics:<br>'
@@ -144,18 +168,22 @@ st.markdown(f'<div class="result-box">'
             f'F1-score: {f1:.2f}'
             f'</div>', unsafe_allow_html=True)
 
+# Make prediction based on user input
 input_df = pd.DataFrame([user_input])
 input_scaled = scaler.transform(input_df)
 prediction = model.predict(input_scaled)[0]
 
+# Interpret the prediction
 if prediction_choice == 'Quality':
     quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
     predicted_result = quality_mapping_reverse[prediction]
 else:
     predicted_result = 'white' if prediction == 1 else 'red'
 
+# Display the prediction result
 st.markdown(f'<div class="result-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
+# Calculate and display feature importances
 importance = model.feature_importances_
 feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
 top_features = feature_importance.head(5)
@@ -169,8 +197,10 @@ plt.title('Top 5 Feature Importances')
 plt.gca().invert_yaxis()
 st.pyplot(plt)
 
+# Plot ROC curve
 st.write('### ROC Curve')
 if prediction_choice == 'Quality':
+    # Multi-class ROC curve for Quality prediction
     y_prob = model.predict_proba(X_test)
     classes_present = np.unique(y)
     quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
@@ -190,6 +220,7 @@ if prediction_choice == 'Quality':
     plt.legend(loc="lower right")
     st.pyplot(plt)
 else:
+    # Binary ROC curve for Color prediction
     y_prob = model.predict_proba(X_test)[:, 1]
     fpr, tpr, _ = roc_curve(y_test, y_prob)
     roc_auc = auc(fpr, tpr)
