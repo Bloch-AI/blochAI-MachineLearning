@@ -1,11 +1,14 @@
 import streamlit as st
 import pandas as pd
 import requests
-import openpyxl
+import numpy as np
 from io import BytesIO
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.impute   
+ import SimpleImputer   
+
 
 # GitHub URL for the dataset (Corrected)
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
@@ -26,6 +29,24 @@ def load_data(url):
 # Load data
 data = load_data(url)
 if data is None:
+    st.stop()
+
+# Display dataset
+st.title('Wine Quality Prediction App')
+st.write('## Wine Dataset')
+st.write(data.head())
+
+# Preprocessing
+st.write('## Preprocessing')
+data['color'] = data['color'].map({'red': 0, 'white': 1})
+
+# Corrected quality mapping
+data['quality'] = data['quality'].apply(lambda x: 'bad' if x <= 4 else 'slightly dissatisfied' if x <= 6 else 'neutral' if x == 7 else 'good' if x <= 8 else 'excellent')
+data['quality'] = data['quality'].map({'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2, 'good': 3, 'excellent': 4})
+
+# Check if y contains any infinite values
+if data['quality'].isnull().values.any() or np.isinf(data['quality']).any():
+    st.error("Target variable (y) contains NaN or infinite values.")
     st.stop()
 
 # Display dataset
