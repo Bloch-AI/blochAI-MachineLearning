@@ -204,13 +204,7 @@ if prediction_choice == 'Quality':
     
      # Plot ROC curve
     plt.figure()
-    plt.plot(fpr["micro"], tpr["micro"],
-             label='micro-average ROC curve (area = {0:0.2f})'
-                   ''.format(roc_auc["micro"]),   
-
-             color='deeppink', linestyle=':', linewidth=4)   
-
-    
+    plt.plot(fpr["micro"], tpr["micro"],label='micro-average ROC curve(area = {0:0.2f})'''.format(roc_auc["micro"]),color='deeppink',linestyle=':', linewidth=4)
     plt.plot([0, 1], [0, 1], 'k--')
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
