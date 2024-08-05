@@ -231,5 +231,6 @@ else:
     except IndexError as e:
         st.error(f"Index error while plotting ROC curves: {e}")
 
+
 # Add footer
-st.markdown('<div class="footer"><p>© 2024 Bloch.ai - All Rights Reserved</p></div>',
+st.markdown('<div class="footer"><p>© 2024 Bloch.ai - All Rights Reserved</p></div>')
