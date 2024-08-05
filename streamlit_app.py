@@ -105,7 +105,10 @@ if prediction_choice == 'Quality':
 else:
     predicted_result = 'white' if prediction == 1 else 'red'
 
-st.sidebar.write(f'### Predicted {prediction_choice}: {predicted_result}')
+# Display the prediction result at the top of the sidebar
+with st.sidebar:
+    st.write('## Prediction Result')
+    st.markdown(f'<div style="padding: 10px; border: 2px solid black; background-color: lightyellow; text-align: center;">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # ROC Curve
 st.write('## ROC Curve')
