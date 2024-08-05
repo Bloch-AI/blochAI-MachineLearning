@@ -195,8 +195,7 @@ if prediction_choice == 'Quality':
     n_classes = y_test_bin.shape[1]
 
     for i in range(n_classes):
-        fpr[i], tpr[i], _ = roc_curve(y_test_bin[:,   
- i], y_prob[:, i])
+        fpr[i], tpr[i], _ = roc_curve(y_test_bin[:,i], y_prob[:, i])
         roc_auc[i] = auc(fpr[i], tpr[i])
 
     # Compute micro-average ROC curve and ROC area
