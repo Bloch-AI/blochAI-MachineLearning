@@ -92,7 +92,12 @@ feature_importance = pd.DataFrame({'Feature': data.drop([target], axis=1).column
 st.write(feature_importance)
 
 # Make prediction from sidebar input
-input_df = pd.DataFrame([user_input])
+if prediction_choice == 'Quality':
+    input_df = pd.DataFrame([user_input])
+else:
+    user_input['color'] = st.number_input('color', 0, 1, 1)  # Adding the color feature when predicting quality
+    input_df = pd.DataFrame([user_input])
+
 prediction = model.predict(input_df)[0]
 
 if prediction_choice == 'Quality':
