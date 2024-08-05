@@ -199,8 +199,7 @@ if prediction_choice == 'Quality':
         roc_auc[i] = auc(fpr[i], tpr[i])
 
     # Compute micro-average ROC curve and ROC area
-    fpr["micro"], tpr["micro"], _ = roc_curve(y_test_bin.ravel(), y_prob.ravel())   
-
+    fpr["micro"], tpr["micro"], _ = roc_curve(y_test_bin.ravel(), y_prob.ravel())
     roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
     
      # Plot ROC curve
