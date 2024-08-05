@@ -16,7 +16,7 @@ wine_data = fetch_ucirepo(id=186)
 
 # Data Preparation
 X = wine_data.data.features 
-y = wine_data.data.targets['class']
+y = wine_data.data.targets['type']
 
 # Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
