@@ -1,6 +1,4 @@
 import streamlit as st
-st.set_option('server.fileWatcherType', 'none')
-
 import pandas as pd
 import requests
 import numpy as np
