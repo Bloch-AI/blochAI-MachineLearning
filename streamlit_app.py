@@ -5,8 +5,7 @@ import openpyxl
 from io import BytesIO
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score   
-
+from sklearn.metrics import accuracy_score
 
 # GitHub URL for the dataset (Corrected)
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
