@@ -149,6 +149,21 @@ y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 st.markdown(f'<div class="result-box">### Model Accuracy: {accuracy:.2f}</div>', unsafe_allow_html=True)
 
+# Make prediction from sidebar input
+input_df = pd.DataFrame([user_input])
+input_df = input_df.reindex(columns=features, fill_value=0)  # Ensure input_df has all necessary features
+
+prediction = model.predict(input_df)[0]
+
+if prediction_choice == 'Quality':
+    quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
+    predicted_result = quality_mapping_reverse[prediction]
+else:
+    predicted_result = 'white' if prediction == 1 else 'red'
+
+# Display the prediction result just below the model accuracy box
+st.markdown(f'<div class="prediction-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
+
 # Feature importance and ROC Curve in one box
 with st.container():
     st.markdown('<div class="result-box">', unsafe_allow_html=True)
@@ -223,23 +238,6 @@ with st.container():
             st.error(f"Index error while plotting ROC curves: {e}")
     
     st.markdown('</div>', unsafe_allow_html=True)
-
-# Make prediction from sidebar input
-input_df = pd.DataFrame([user_input])
-input_df = input_df.reindex(columns=features, fill_value=0)  # Ensure input_df has all necessary features
-
-prediction = model.predict(input_df)[0]
-
-if prediction_choice == 'Quality':
-    quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
-    predicted_result = quality_mapping_reverse[prediction]
-else:
-    predicted_result = 'white' if prediction == 1 else 'red'
-
-# Display the prediction result at the top of the sidebar
-with st.sidebar:
-    st.markdown('## Prediction Result')
-    st.markdown(f'<div class="prediction-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # Add footer
 st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved. <a href="https://www.bloch.ai" style="color: white;">www.bloch.ai</a></p></div>', unsafe_allow_html=True)
