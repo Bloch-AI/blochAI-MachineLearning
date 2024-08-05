@@ -210,8 +210,7 @@ if prediction_choice == 'Quality':
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('Receiver   
- Operating Characteristic (ROC) Curves')
+    plt.title('Receiver Operating Characteristic (ROC) Curves')
     plt.legend(loc='lower right')
     st.pyplot(plt)
 except IndexError as e:
