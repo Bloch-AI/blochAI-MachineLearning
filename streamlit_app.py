@@ -1,5 +1,5 @@
 import streamlit as st
 
-st.title('🎈 App Name')
+st.title('🎈 Bloch.ai - Machine Learning Demo')
 
 st.write('Hello world!')
