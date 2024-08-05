@@ -8,16 +8,28 @@ from sklearn.metrics import accuracy_score
 
 # GitHub URL for the dataset
 url = 'https://github.com/Bloch-AI/blochAI-MachineLearning/blob/master/wine.xlsx'
+
 # Function to load data from GitHub
 @st.cache
 def load_data(url):
-    response = requests.get(url)
-    file = BytesIO(response.content)
-    data = pd.read_excel(file)
-    return data
+    st.write(f"Fetching data from URL: {url}")  # Debug statement
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Check if the request was successful
+        st.write(f"Response Status Code: {response.status_code}")  # Debug statement
+        st.write(f"Response Headers: {response.headers}")  # Debug statement
+        file = BytesIO(response.content)
+        st.write(f"File size: {len(file.getvalue())} bytes")  # Debug statement
+        data = pd.read_excel(file)
+        return data
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        return None
 
 # Load data
 data = load_data(url)
+if data is None:
+    st.stop()
 
 # Display dataset
 st.title('Wine Quality Prediction App')
