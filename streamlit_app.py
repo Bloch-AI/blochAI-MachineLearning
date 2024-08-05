@@ -66,10 +66,12 @@ with st.sidebar:
 # Feature selection
 if prediction_choice == 'Quality':
     target = 'quality'
+    features = data.drop(['quality'], axis=1).columns
 else:
     target = 'color'
+    features = data.drop(['color'], axis=1).columns
 
-X = data.drop([target], axis=1).values
+X = data[features].values
 y = data[target].values
 
 # Split the data
@@ -88,7 +90,7 @@ st.write(f'### Accuracy: {accuracy:.2f}')
 # Feature importance
 st.write('## Feature Importance')
 importance = model.feature_importances_
-feature_importance = pd.DataFrame({'Feature': data.drop([target], axis=1).columns, 'Importance': importance}).sort_values(by='Importance', ascending=False)
+feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
 st.write(feature_importance)
 
 # Make prediction from sidebar input
@@ -97,6 +99,9 @@ if prediction_choice == 'Quality':
 else:
     user_input['color'] = st.number_input('color', 0, 1, 1)  # Adding the color feature when predicting quality
     input_df = pd.DataFrame([user_input])
+
+# Ensure input_df has all the necessary features
+input_df = input_df.reindex(columns=features, fill_value=0)
 
 prediction = model.predict(input_df)[0]
 
