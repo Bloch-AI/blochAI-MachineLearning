@@ -5,25 +5,22 @@ import openpyxl
 from io import BytesIO
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score   
 
-# GitHub URL for the dataset
-url = 'https://github.com/Bloch-AI/blochAI-MachineLearning/blob/master/wine.xlsx'
+
+# GitHub URL for the dataset (Corrected)
+url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
 
 # Function to load data from GitHub
-@st.cache
+@st.cache_data  
 def load_data(url):
-    st.write(f"Fetching data from URL: {url}")  # Debug statement
     try:
         response = requests.get(url)
-        response.raise_for_status()  # Check if the request was successful
-        st.write(f"Response Status Code: {response.status_code}")  # Debug statement
-        st.write(f"Response Headers: {response.headers}")  # Debug statement
+        response.raise_for_status()
         file = BytesIO(response.content)
-        st.write(f"File size: {len(file.getvalue())} bytes")  # Debug statement
-        data = pd.read_excel(file, engine='openpyxl')  # Specify engine explicitly
+        data = pd.read_excel(file, engine='openpyxl') 
         return data
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         st.error(f"Error loading data: {e}")
         return None
 
