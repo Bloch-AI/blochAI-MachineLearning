@@ -8,58 +8,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_curve, auc
 import matplotlib.pyplot as plt
 
-# Custom CSS for styling
-st.markdown("""
-    <style>
-    .main {
-        background-color: #f5f5f5;
-    }
-    .block-container {
-        padding: 2rem;
-    }
-    .sidebar .sidebar-content {
-        background-color: #f0f0f5;
-        padding: 2rem;
-    }
-    .prediction-box {
-        padding: 10px;
-        border: 2px solid black;
-        background-color: lightyellow;
-        text-align: center;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        color: #333;
-    }
-    .feature-importance {
-        margin-top: 20px;
-    }
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: #333;
-        color: white;
-        text-align: center;
-        padding: 1rem;
-    }
-    .header {
-        width: 100%;
-        background-color: #333;
-        color: white;
-        text-align: center;
-        padding: 1rem;
-        margin-bottom: 2rem;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
 # Add header
 st.markdown('<div class="header"><h1>Welcome to the Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
 
