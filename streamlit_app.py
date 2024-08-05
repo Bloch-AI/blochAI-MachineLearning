@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 # GitHub URL for the dataset
-url = wine.xlsx
+url = 'blochAI-MachineLearning/wine.xlsx'
 # Function to load data from GitHub
 @st.cache
 def load_data(url):
