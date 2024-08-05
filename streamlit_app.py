@@ -53,14 +53,20 @@ quality_mapping = {
 data['quality'] = data['quality'].astype(str).map(quality_mapping)
 data.dropna(subset=['quality'], inplace=True)
 
-# Sidebar for parameter selection
+# Sidebar for parameter selection and prediction input
 with st.sidebar:
     st.write('## Model Parameters')
     test_size = st.slider('Test Size', 0.1, 0.5, 0.2)
 
+    # Input features for prediction
+    st.write('## Predict Wine Quality')
+    user_input = {}
+    for feature in data.drop(['quality'], axis=1).columns:
+        user_input[feature] = st.number_input(f'{feature}', float(data[feature].min()), float(data[feature].max()), float(data[feature].mean()))
+
 # Feature selection (X converted to NumPy array)
 X = data.drop(['quality'], axis=1).values
-y = data['quality'].values  
+y = data['quality'].values
 
 # Split the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
@@ -81,15 +87,9 @@ importance = model.feature_importances_
 feature_importance = pd.DataFrame({'Feature': data.drop(['quality'], axis=1).columns, 'Importance': importance}).sort_values(by='Importance', ascending=False)
 st.write(feature_importance)
 
-# Predict on user input
-st.write('## Predict Wine Quality')
-user_input = {}
-for feature in data.drop(['quality'], axis=1).columns:
-    user_input[feature] = st.number_input(f'{feature}', float(data[feature].min()), float(data[feature].max()), float(data[feature].mean()))
-
+# Make prediction from sidebar input
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
-
 quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}  
 predicted_quality = quality_mapping_reverse[prediction]
-st.write(f'### Predicted Quality: {predicted_quality}')
+st.sidebar.write(f'### Predicted Quality: {predicted_quality}')  # Display prediction in sidebar
