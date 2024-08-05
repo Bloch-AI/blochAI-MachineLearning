@@ -40,10 +40,22 @@ st.write(f"Initial data shape: {data.shape}")
 # Map color column
 data['color'] = data['color'].map({'red': 0, 'white': 1})
 
-# Convert quality to numeric and handle missing values
-st.write(f"Unique values in quality before conversion: {data['quality'].unique()}")
-data['quality'] = pd.to_numeric(data['quality'], errors='coerce')
-st.write(f"Unique values in quality after conversion to numeric: {data['quality'].unique()}")
+# Mapping quality values to numeric
+quality_mapping = {
+    'extremly dissatisfied': 0,
+    'moderately dissatisfied': 1,
+    'slightly dissatisfied': 2,
+    'neutral': 3,
+    'slightly satisfied': 4,
+    'moderately satisfied': 5,
+    'extremly satisfied': 6
+}
+
+st.write(f"Unique values in quality before mapping: {data['quality'].unique()}")
+data['quality'] = data['quality'].map(quality_mapping)
+st.write(f"Unique values in quality after mapping: {data['quality'].unique()}")
+
+# Drop rows with NaN values in 'quality' after mapping
 data.dropna(subset=['quality'], inplace=True)
 st.write(f"Data shape after handling missing values: {data.shape}")
 
@@ -51,34 +63,6 @@ st.write(f"Data shape after handling missing values: {data.shape}")
 if np.isinf(data['quality']).any():
     st.error("Quality column contains infinite values.")
     st.stop()
-
-# Quality Mapping
-def map_quality(x):
-    if x <= 4:
-        return 'bad'
-    elif x <= 6:
-        return 'slightly dissatisfied'
-    elif x == 7:
-        return 'neutral'
-    elif x <= 8:
-        return 'good'
-    else:
-        return 'excellent'
-
-if not data['quality'].empty:
-    data['quality'] = data['quality'].apply(map_quality)
-    data['quality'] = data['quality'].map(
-        {'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2, 'good': 3, 'excellent': 4}
-    )
-else:
-    st.error("No valid quality data available after conversion.")
-    st.stop()
-
-st.write(f"Data shape after mapping quality: {data.shape}")
-
-# Check for any remaining NaNs or infinite values
-st.write(f"Number of NaNs in each column: {data.isna().sum()}")
-st.write(f"Number of infinite values in each column: {np.isinf(data).sum().sum()}")
 
 # Feature selection
 X = data.drop(['quality'], axis=1).values
