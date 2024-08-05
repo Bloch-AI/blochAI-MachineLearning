@@ -126,46 +126,54 @@ with st.sidebar:
 # ROC Curve
 st.write('## ROC Curve')
 if prediction_choice == 'Quality':
-    if len(np.unique(y_test)) > 2:
+    try:
         y_prob = model.predict_proba(X_test)
-        fpr = {}
-        tpr = {}
-        roc_auc = {}
+        num_classes = len(quality_mapping)
 
-        for i in range(len(quality_mapping)):
-            fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
-            roc_auc[i] = auc(fpr[i], tpr[i])
+        if y_prob.shape[1] != num_classes:
+            st.error(f"Unexpected number of classes in prediction probabilities. Expected {num_classes}, got {y_prob.shape[1]}.")
+        else:
+            fpr = {}
+            tpr = {}
+            roc_auc = {}
 
-        # Plot all ROC curves
+            for i in range(num_classes):
+                fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
+                roc_auc[i] = auc(fpr[i], tpr[i])
+
+            # Plot all ROC curves
+            plt.figure()
+            colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
+            for i, color in zip(range(num_classes), colors):
+                if i in fpr and i in tpr:
+                    plt.plot(fpr[i], tpr[i], color=color, lw=2,
+                             label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
+            plt.plot([0, 1], [0, 1], 'k--', lw=2)
+            plt.xlim([0.0, 1.0])
+            plt.ylim([0.0, 1.05])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('Receiver Operating Characteristic (ROC) Curves')
+            plt.legend(loc='lower right')
+            st.pyplot(plt)
+    except IndexError as e:
+        st.error(f"Index error while plotting ROC curves: {e}")
+else:
+    try:
+        y_prob = model.predict_proba(X_test)[:, 1]
+        fpr, tpr, _ = roc_curve(y_test, y_prob)
+        roc_auc = auc(fpr, tpr)
+
+        # Plot ROC curve
         plt.figure()
-        colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
-        for i, color in zip(range(len(quality_mapping)), colors):
-            if i in fpr and i in tpr:
-                plt.plot(fpr[i], tpr[i], color=color, lw=2,
-                         label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
+        plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:0.2f})')
         plt.plot([0, 1], [0, 1], 'k--', lw=2)
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
-        plt.title('Receiver Operating Characteristic (ROC) Curves')
+        plt.title('Receiver Operating Characteristic (ROC) Curve')
         plt.legend(loc='lower right')
         st.pyplot(plt)
-    else:
-        st.warning("ROC curve not applicable for binary classification in this case.")
-else:
-    y_prob = model.predict_proba(X_test)[:, 1]
-    fpr, tpr, _ = roc_curve(y_test, y_prob)
-    roc_auc = auc(fpr, tpr)
-
-    # Plot ROC curve
-    plt.figure()
-    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:0.2f})')
-    plt.plot([0, 1], [0, 1], 'k--', lw=2)
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic (ROC) Curve')
-    plt.legend(loc='lower right')
-    st.pyplot(plt)
+    except IndexError as e:
+        st.error(f"Index error while plotting ROC curves: {e}")
