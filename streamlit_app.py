@@ -1,66 +1,70 @@
 import streamlit as st
 import pandas as pd
+import requests
+from io import BytesIO
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
-from sklearn.metrics import classification_report
-from ucimlrepo import fetch_ucirepo
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 
-# Title and description
-st.title('Bloch.ai - Machine Learning Demo')
-st.title("Wine Color Prediction")
-st.write("Predict whether a wine is red or white based on its chemical properties.")
+# GitHub URL for the dataset
+url = 'https://github.com/your_username/your_repository/raw/main/wine.xlsx'  # Update with the correct URL
 
-# Fetch dataset
-wine_data = fetch_ucirepo(id=186) 
+# Function to load data from GitHub
+@st.cache
+def load_data(url):
+    response = requests.get(url)
+    file = BytesIO(response.content)
+    data = pd.read_excel(file)
+    return data
 
-# Data Preparation
-X = wine_data.data.features 
-y = wine_data.data.targets['color']
+# Load data
+data = load_data(url)
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Display dataset
+st.title('Wine Quality Prediction App')
+st.write('## Wine Dataset')
+st.write(data.head())
 
-# Feature Scaling (Important for SVM)
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+# Preprocessing
+st.write('## Preprocessing')
+data['color'] = data['color'].map({'red': 0, 'white': 1})
+data['quality'] = data['quality'].map({
+    'bad': 0, 'slightly dissatisfied': 1, 'neutral': 2,
+    'good': 3, 'excellent': 4
+})
 
-# Model Training (SVM)
-model = SVC(kernel='linear') 
+# Feature selection
+X = data.drop(['quality'], axis=1)
+y = data['quality']
+
+# Split the data
+st.write('## Train/Test Split')
+test_size = st.slider('Select test size', 0.1, 0.5, 0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+
+# Train the model
+st.write('## Training Model')
+model = RandomForestClassifier()
 model.fit(X_train, y_train)
-
-# User Input
-st.header("Enter Wine Properties")
-col1, col2 = st.columns(2)
-with col1:
-    fixed_acidity = st.number_input("Fixed Acidity", min_value=0.0)
-    volatile_acidity = st.number_input("Volatile Acidity", min_value=0.0)
-    citric_acid = st.number_input("Citric Acid", min_value=0.0)
-    residual_sugar = st.number_input("Residual Sugar", min_value=0.0)
-    chlorides = st.number_input("Chlorides", min_value=0.0)
-    free_sulfur_dioxide = st.number_input("Free Sulfur Dioxide", min_value=0.0)
-
-with col2:
-    total_sulfur_dioxide = st.number_input("Total Sulfur Dioxide", min_value=0.0)
-    density = st.number_input("Density", min_value=0.0)
-    pH = st.number_input("pH", min_value=0.0)
-    sulphates = st.number_input("Sulphates", min_value=0.0)
-    alcohol = st.number_input("Alcohol", min_value=0.0)
-
-# Prediction
-if st.button("Predict"):
-    input_data = [[fixed_acidity, volatile_acidity, citric_acid, residual_sugar, chlorides, 
-                   free_sulfur_dioxide, total_sulfur_dioxide, density, pH, sulphates, alcohol]]
-    input_data_scaled = scaler.transform(input_data)  # Scale input data
-    prediction = model.predict(input_data_scaled)
-    if prediction[0] == 'red':
-        st.success("The wine is predicted to be Red!")
-    else:
-        st.success("The wine is predicted to be White!")
-
-# Display additional information (optional)
-st.header("Model Performance")
 y_pred = model.predict(X_test)
-report = classification_report(y_test, y_pred)
-st.text(report)
+
+# Display accuracy
+accuracy = accuracy_score(y_test, y_pred)
+st.write(f'### Accuracy: {accuracy:.2f}')
+
+# Feature importance
+st.write('## Feature Importance')
+importance = model.feature_importances_
+feature_importance = pd.DataFrame({'Feature': X.columns, 'Importance': importance}).sort_values(by='Importance', ascending=False)
+st.write(feature_importance)
+
+# Predict on user input
+st.write('## Predict Wine Quality')
+user_input = {}
+for feature in X.columns:
+    user_input[feature] = st.number_input(f'{feature}', float(data[feature].min()), float(data[feature].max()), float(data[feature].mean()))
+
+input_df = pd.DataFrame([user_input])
+prediction = model.predict(input_df)[0]
+st.write(f'### Predicted Quality: {prediction}')
+
