@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 import numpy as np
 from io import BytesIO
-from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_curve, auc
 import matplotlib.pyplot as plt
@@ -69,6 +69,10 @@ url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master
 # Function to load data from GitHub
 @st.cache_data
 def load_data(url):
+    """
+    Load data from a given URL.
+    Returns a pandas DataFrame.
+    """
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -137,7 +141,7 @@ for train_index, test_index in skf.split(X, y):
 
 # Train the model
 st.write(f'## Model Accuracy ({prediction_choice})')
-model = RandomForestClassifier()
+model = RandomForestClassifier(random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
@@ -238,5 +242,4 @@ with st.sidebar:
     st.markdown(f'<div class="prediction-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # Add footer
-st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved.      <a href="https://www.bloch.ai" style="color: white;">www.bloch.ai</a></p></div>', unsafe_allow_html=True)
-
+st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved. <a href="https://www.bloch.ai" style="color: white;">www.bloch.ai</a></p></div>', unsafe_allow_html=True)
