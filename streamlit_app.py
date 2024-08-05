@@ -8,6 +8,40 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_curve, auc
 import matplotlib.pyplot as plt
 
+# Custom CSS for styling
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f5f5f5;
+    }
+    .block-container {
+        padding: 2rem;
+    }
+    .sidebar .sidebar-content {
+        background-color: #f0f0f5;
+        padding: 2rem;
+    }
+    .prediction-box {
+        padding: 10px;
+        border: 2px solid black;
+        background-color: lightyellow;
+        text-align: center;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .feature-importance {
+        margin-top: 20px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # GitHub URL for the dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
 
@@ -30,10 +64,9 @@ if data is None:
     st.stop()
 
 # Display dataset
-st.title('Bloch.ai')
-st.title('Wine Quality Prediction App')
+st.title('🍷 Bloch.ai - Wine Quality Prediction App')
 st.write('## Wine Dataset')
-st.write(data.head())
+st.dataframe(data.head(), height=150)
 
 # Preprocessing
 data['color'] = data['color'].map({'red': 0, 'white': 1})
@@ -121,8 +154,8 @@ else:
 
 # Display the prediction result at the top of the sidebar
 with st.sidebar:
-    st.write('## Prediction Result')
-    st.markdown(f'<div style="padding: 10px; border: 2px solid black; background-color: lightyellow; text-align: center;">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
+    st.markdown('## Prediction Result')
+    st.markdown(f'<div class="prediction-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # ROC Curve
 st.write('## ROC Curve')
