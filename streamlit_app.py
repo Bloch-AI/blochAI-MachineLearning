@@ -39,13 +39,13 @@ data['color'] = data['color'].map({'red': 0, 'white': 1})
 
 # Enhanced Quality Mapping
 quality_mapping = {
-    'extremly dissatisfied': 0,
+    'extremely dissatisfied': 0,
     'moderately dissatisfied': 1,
     'slightly dissatisfied': 2,
     'neutral': 3,
     'slightly satisfied': 4,
     'moderately satisfied': 5,
-    'extremly satisfied': 6
+    'extremely satisfied': 6
 }
 
 data['quality'] = data['quality'].astype(str).map(quality_mapping)
