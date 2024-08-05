@@ -99,6 +99,10 @@ if data is None:
 
 # Display the first few rows of the dataset
 st.write('## Wine Dataset')
+st.markdown("""
+    ⚠️ This table shows a sample of the wine dataset. You can sort the table 
+    by clicking on the column headers.
+""")
 st.dataframe(data.head(), height=150)
 
 # Preprocess the data
@@ -122,12 +126,43 @@ data.dropna(subset=['quality'], inplace=True)
 
 # Sidebar for user inputs
 with st.sidebar:
+    st.markdown("""
+        ⚠️ You can adjust the options below to experiment with different model settings. 
+        Note how the results update automatically!
+    """)
+    
     st.write('## Model Parameters')
+    
+    st.markdown("""
+        ⚠️ Choose whether to predict wine quality (how good the wine is) or 
+        colour (red or white). This determines what the model will try to guess.
+    """)
     prediction_choice = st.radio("Choose what to predict", ('Quality', 'Color'))
+    
+    st.markdown("""
+        ⚠️ Select which type of machine learning model to use. Each model works 
+        differently and may give varied results:
+        - Random Forest: Uses many decision trees and takes a vote
+        - XGBoost: Builds trees one after another, learning from mistakes
+        - Decision Tree: Makes decisions based on a series of yes/no questions
+    """)
     model_choice = st.radio("Choose model", ('Random Forest', 'XGBoost', 'Decision Tree'))
+    
+    st.markdown("""
+        ⚠️ This determines how much of the data is used for testing the model. 
+        A larger test size means more data for evaluating the model, but less for training it.
+    """)
     test_size = st.slider('Test Size', 0.1, 0.5, 0.2)
 
     st.write('## Model Hyperparameters')
+    st.markdown("""
+        ⚠️ These settings control how the model learns. Adjusting them can 
+        affect the model's performance:
+        - Number of trees: More trees can improve accuracy but take longer to run
+        - Max depth: Deeper trees can capture more complex patterns but may overfit
+        - Min samples split/leaf: Controls how detailed the tree's decisions can be
+        - Learning rate (XGBoost): How quickly the model adapts to the data
+    """)
     if model_choice == 'Random Forest':
         n_estimators = st.slider('Number of trees', 10, 200, 100)
         max_depth = st.slider('Max depth', 1, 20, 10)
@@ -204,6 +239,13 @@ precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, avera
 
 # Display model performance metrics
 st.write(f'## Model Performance ({model_choice} - {prediction_choice})')
+st.markdown("""
+    ⚠️ These metrics show how well the model is performing:
+    - Accuracy: Percentage of correct predictions
+    - Precision: How often the model is correct when it predicts a positive result
+    - Recall: How often the model correctly identifies all positive cases
+    - F1-score: A balance between precision and recall
+""")
 st.markdown(f'<div class="result-box">'
             f'### Metrics:<br>'
             f'Accuracy: {accuracy:.2f}<br>'
@@ -234,6 +276,10 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     top_features = feature_importance.head(5)
 
     st.write('### Top 5 Feature Importances')
+    st.markdown("""
+        ⚠️ This chart shows which wine characteristics are most important for making predictions. 
+        Longer bars indicate more influential features.
+    """)
     plt.figure(figsize=(10, 5))
     plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
     plt.xlabel('Importance')
@@ -244,6 +290,11 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
 
 # Plot ROC curve
 st.write('### ROC Curve')
+st.markdown("""
+    ⚠️ The ROC curve shows how well the model can distinguish between classes. 
+    A curve closer to the top-left corner indicates better performance. 
+    The AUC (Area Under Curve) summarises this in a single number - higher is better.
+""")
 if prediction_choice == 'Quality':
     # Multi-class ROC curve for Quality prediction
     y_prob = model.predict_proba(X_test)
