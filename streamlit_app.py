@@ -180,4 +180,4 @@ else:
 
 
 # Add footer
-st.markdown('<div class="footer"><p>© 2024 Bloch.ai - All Rights Reserved</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved</p></div>', unsafe_allow_html=True)
