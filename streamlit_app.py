@@ -5,7 +5,8 @@ import numpy as np
 from io import BytesIO
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, roc_curve, auc
+import matplotlib.pyplot as plt
 
 # GitHub URL for the dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
@@ -34,10 +35,7 @@ st.write('## Wine Dataset')
 st.write(data.head())
 
 # Preprocessing
-#st.write('## Preprocessing')
 data['color'] = data['color'].map({'red': 0, 'white': 1})
-
-#st.write(data.info())
 
 # Enhanced Quality Mapping
 quality_mapping = {
@@ -90,6 +88,32 @@ st.write(feature_importance)
 # Make prediction from sidebar input
 input_df = pd.DataFrame([user_input])
 prediction = model.predict(input_df)[0]
-quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}  
+quality_mapping_reverse = {v: k for k, v in quality_mapping.items()}
 predicted_quality = quality_mapping_reverse[prediction]
 st.sidebar.write(f'### Predicted Quality: {predicted_quality}')  # Display prediction in sidebar
+
+# ROC Curve
+st.write('## ROC Curve')
+y_prob = model.predict_proba(X_test)
+fpr = {}
+tpr = {}
+roc_auc = {}
+
+for i in range(len(quality_mapping)):
+    fpr[i], tpr[i], _ = roc_curve(y_test, y_prob[:, i], pos_label=i)
+    roc_auc[i] = auc(fpr[i], tpr[i])
+
+# Plot all ROC curves
+plt.figure()
+colors = ['aqua', 'darkorange', 'cornflowerblue', 'red', 'green', 'blue', 'purple']
+for i, color in zip(range(len(quality_mapping)), colors):
+    plt.plot(fpr[i], tpr[i], color=color, lw=2,
+             label=f'ROC curve of class {quality_mapping_reverse[i]} (area = {roc_auc[i]:0.2f})')
+plt.plot([0, 1], [0, 1], 'k--', lw=2)
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curves')
+plt.legend(loc='lower right')
+st.pyplot(plt)
