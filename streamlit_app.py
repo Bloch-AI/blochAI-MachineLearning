@@ -142,7 +142,7 @@ data.dropna(subset=['quality'], inplace=True)
 # Sidebar for user inputs
 with st.sidebar:
     
-    st.header('## Model Parameters')
+    st.header('Model Parameters')
     
     intro_box("""
         You can adjust the options below to experiment with different model settings. 
