@@ -156,12 +156,13 @@ many tasks. However, the more complex a model is the longer it takes to run.
 
     st.write('## Model Hyperparameters')
     explanation_box("""
-        These settings control how the model learns. Adjusting them can 
-        affect the model's performance:
-        - Number of trees: More trees can improve accuracy but take longer to run
-        - Max depth: Deeper trees can capture more complex patterns but may overfit
-        - Min samples split/leaf: Controls how detailed the tree's decisions can be
-        - Learning rate (XGBoost): How quickly the model adapts to the data
+These settings control how our model learns from data. The number of trees determines how many 'voters' we have making decisions; 
+more trees can lead to better guesses but take longer to process. Max depth is the number of branches and sets how complex each tree's decisions can be; 
+deeper trees spot intricate patterns but risk 'overfitting' - memorising the training data rather than learning general rules. 
+Conversely, trees that are too shallow might 'underfit', missing important patterns. The min samples split/leaf settings determine
+how many data points must be in a group before the tree makes a new split or forms a leaf. This helps prevent the model from making 
+decisions based on too few examples, again balancing between overfitting and underfitting. 
+For XGBoost models, the learning rate determines how quickly the model absorbs new information.
     """)
     if model_choice == 'Random Forest':
         n_estimators = st.slider('Number of trees', 10, 200, 100)
