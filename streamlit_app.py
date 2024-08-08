@@ -67,14 +67,30 @@ st.markdown("""
         padding: 10px;
         margin-bottom: 10px;
     }
+    .intro-box {
+        background-color: #FFEBCC;
+        border: 2px solid black;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
 def explanation_box(text):
     return st.markdown(f'<div class="explanation-box">{text}</div>', unsafe_allow_html=True)
 
+def intro_box(text):
+    return st.markdown(f'<div class="intro-box">{text}</div>', unsafe_allow_html=True)
+
 # Add header to the app
 st.markdown('<div class="header"><h1>🍷 Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
+
+# Intro box explaining the app
+intro_box("""
+This app is designed to show users how machine learning, specifically simple classification algorithms, work. 
+You can tweak the data, the parameters, and even choose different models to see what improves the model outputs.
+""")
 
 # GitHub URL for the wine dataset
 url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master/wine.xlsx'
