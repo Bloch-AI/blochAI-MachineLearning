@@ -178,6 +178,9 @@ For XGBoost models, the learning rate determines how quickly the model absorbs n
         min_samples_split = st.slider('Min samples split', 2, 10, 2)
         min_samples_leaf = st.slider('Min samples leaf', 1, 10, 1)
 
+    explanation_box("""
+        You can add your own wine values below, or more likely, tweak these default values to see how the model behaves.
+    """)
     st.write(f'## Predict Wine {prediction_choice}')
     user_input = {}
     for feature in data.drop(['quality', 'color'], axis=1).columns:
