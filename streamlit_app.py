@@ -100,9 +100,9 @@ if data is None:
 # Display the first few rows of the dataset
 st.write('## Wine Dataset')
 explanation_box("""
-This sample, drawn from the UCI Machine Learning Repository's wine dataset, has trained our machine learning model. 
-It features two class columns: Quality and Colour. 
-Using machine learning, we can predict these attributes based on the listed chemical components.
+This data, drawn from the UCI Machine Learning Repository wine dataset, has trained our machine learning model. 
+It features two class columns: Quality and Colour. Using machine learning, we can predict these attributes based 
+on the listed chemical components.
 """)
 st.dataframe(data.head(), height=150)
 
@@ -126,7 +126,7 @@ data.dropna(subset=['quality'], inplace=True)
 with st.sidebar:
     explanation_box("""
         You can adjust the options below to experiment with different model settings. 
-        Note how the results update automatically!
+        The results will automatically adjust. 
     """)
     
     st.write('## Model Parameters')
@@ -138,17 +138,19 @@ with st.sidebar:
     prediction_choice = st.radio("Choose what to predict", ('Quality', 'Color'))
     
     explanation_box("""
-        Select which type of machine learning model to use. Each model works 
-        differently and may give varied results:
-        - Random Forest: Uses many decision trees and takes a vote
-        - XGBoost: Builds trees one after another, learning from mistakes
-        - Decision Tree: Makes decisions based on a series of yes/no questions
+When selecting a machine learning model, you have several options, each with its own approach and strengths. The Decision Tree model 
+mimics a flowchart, making choices based on a series of yes/no questions about the data features. This simple structure makes Decision 
+Trees easy to interpret, but they may struggle with complex patterns. Random Forest builds upon this concept by combining multiple decision 
+trees, aggregating their predictions to make a final decision - imagine a forest of trees voting on the outcome. This ensemble approach 
+often yields more robust results. XGBoost takes tree-based modelling further by building trees sequentially, with each new tree focusing on 
+correcting the errors of the previous ones, resulting in a powerful and adaptive model that often achieves state-of-the-art performance on 
+many tasks. However, the more complex a model is the longer it takes to run. 
     """)
     model_choice = st.radio("Choose model", ('Random Forest', 'XGBoost', 'Decision Tree'))
     
     explanation_box("""
-        This determines how much of the data is used for testing the model. 
-        A larger test size means more data for evaluating the model, but less for training it.
+        This determines how much of the data is used for testing vs training the model. 
+        A larger test size means more data for evaluating the model, but this also means less data for the model to learn from. 
     """)
     test_size = st.slider('Test Size', 0.1, 0.5, 0.2)
 
@@ -238,11 +240,9 @@ precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, avera
 # Display model performance metrics
 st.write(f'## Model Performance ({model_choice} - {prediction_choice})')
 explanation_box("""
-    These metrics show how well the model is performing:
-    - Accuracy: Percentage of correct predictions
-    - Precision: How often the model is correct when it predicts a positive result
-    - Recall: How often the model correctly identifies all positive cases
-    - F1-score: A balance between precision and recall
+These metrics illustrate model effectiveness. Accuracy represents the overall rate of correct predictions. Precision measures how often the model's 
+positive predictions are right, while recall shows how well it finds all positive cases. The F1-score balances precision and recall, providing a single, 
+comprehensive measure of performance. Together, these metrics offer a thorough assessment of our model's predictive capabilities.
 """)
 st.markdown(f'<div class="result-box">'
             f'### Metrics:<br>'
@@ -273,7 +273,7 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
     top_features = feature_importance.head(5)
 
-    st.write('### Top 5 Feature Importances')
+    st.write('### Top 3 Most Important Features')
     explanation_box("""
         This chart shows which wine characteristics are most important for making predictions. 
         Longer bars indicate more influential features.
@@ -282,16 +282,18 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
     plt.xlabel('Importance')
     plt.ylabel('Feature')
-    plt.title(f'Top 5 Feature Importances ({model_choice})')
+    plt.title(f'Top 3 Most Important Feature Importances ({model_choice})')
     plt.gca().invert_yaxis()
     st.pyplot(plt)
 
 # Plot ROC curve
 st.write('### ROC Curve')
 explanation_box("""
-    The ROC curve shows how well the model can distinguish between classes. 
-    A curve closer to the top-left corner indicates better performance. 
-    The AUC (Area Under Curve) summarises this in a single number - higher is better.
+The ROC (Receiver Operating Characteristic) curve illustrates our model's ability to distinguish between classes. 
+It plots the true positive rate against the false positive rate at various classification thresholds. A curve closer to the 
+top-left corner indicates better performance, as it represents a higher true positive rate and a lower false positive rate. 
+The AUC (Area Under Curve) summarises the ROC curve's information into a single number between 0 and 1, with higher values 
+indicating better overall classification performance.
 """)
 if prediction_choice == 'Quality':
     # Multi-class ROC curve for Quality prediction
