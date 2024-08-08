@@ -144,7 +144,7 @@ with st.sidebar:
     
     st.write('## Model Parameters')
     
-    explanation_box("""
+    intro_box("""
         You can adjust the options below to experiment with different model settings. 
         The results will automatically adjust. 
     """)
@@ -295,7 +295,7 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
     top_features = feature_importance.head(5)
 
-    st.write('### Top 3 Most Important Features')
+    st.write('### Top 5 Most Important Features')
     explanation_box("""
         This chart shows which wine characteristics are most important for making predictions. 
         Longer bars indicate more influential features.
@@ -304,7 +304,7 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     plt.barh(top_features['Feature'], top_features['Importance'], color='skyblue')
     plt.xlabel('Importance')
     plt.ylabel('Feature')
-    plt.title(f'Top 3 Most Important Feature Importances ({model_choice})')
+    plt.title(f'Top 5 Most Important Feature Importances ({model_choice})')
     plt.gca().invert_yaxis()
     st.pyplot(plt)
 
