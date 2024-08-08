@@ -88,8 +88,9 @@ st.markdown('<div class="header"><h1>🍷 Wine Quality Prediction App</h1></div>
 
 # Intro box explaining the app
 intro_box("""
-This app is designed to show users how machine learning, specifically simple classification algorithms, work. 
-You can tweak the data, the parameters, and even choose different models to see what improves the model outputs.
+This app demonstrates how machine learning works, focusing on simple classification algorithms. You can experiment 
+with the data, adjust parameters and select different models to observe how these changes affect the model's performance. 
+By interacting with these elements, you'll gain practical insights into the workings of machine learning systems.
 """)
 
 # GitHub URL for the wine dataset
@@ -140,12 +141,13 @@ data.dropna(subset=['quality'], inplace=True)
 
 # Sidebar for user inputs
 with st.sidebar:
+    
+    st.write('## Model Parameters')
+    
     explanation_box("""
         You can adjust the options below to experiment with different model settings. 
         The results will automatically adjust. 
     """)
-    
-    st.write('## Model Parameters')
     
     explanation_box("""
         Choose whether to predict wine quality (how good the wine is) or 
