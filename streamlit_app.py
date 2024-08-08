@@ -100,8 +100,8 @@ if data is None:
 # Display the first few rows of the dataset
 st.write('## Wine Dataset')
 explanation_box("""
-    This is a sample of the wine dataset from the UCI machine learning repository. 
-    It contains two 'class' columns, Quality & Colour. Machine learning allows us to
+    This is a sample of the wine dataset from the UCI machine learning repository, and we have used it to train our
+    machine learning model. It contains two 'class' columns, Quality & Colour, and machine learning allows us to
     predict the quality and/or colour from the chemical constituents listed. 
 """)
 st.dataframe(data.head(), height=150)
