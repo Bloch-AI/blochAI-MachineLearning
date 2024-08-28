@@ -295,7 +295,7 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
     top_features = feature_importance.head(5)
 
-    st.write('Top 5 Most Important Features')
+    st.write('## Top 5 Most Important Features')
     explanation_box("""
         This chart shows which wine characteristics are most important for making predictions. 
         Longer bars indicate more influential features.
@@ -309,7 +309,7 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     st.pyplot(plt)
 
 # Plot ROC curve
-st.write('ROC Curve')
+st.write('## ROC Curve')
 explanation_box("""
 The ROC (Receiver Operating Characteristic) curve illustrates our model's ability to distinguish between classes. 
 It plots the true positive rate against the false positive rate at various classification thresholds. A curve closer to the 
