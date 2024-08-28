@@ -1,25 +1,57 @@
 # 💻 Bloch.ai - Machine Learning Demo
-```
-⬆️ (Replace above with your app's name)
-```
 
-Description of the app ...
+## 🍷 Wine Quality Prediction App
+This Streamlit app demonstrates how machine learning works, focusing on simple classification algorithms for predicting wine quality and colour. Users can experiment with data, adjust parameters, and select different models to observe how these changes affect the model's performance.
 
-## Demo App
+## Features
+Predict wine quality or colour using machine learning models
+Choose from different models: Random Forest, XGBoost, or Decision Tree
+Adjust model parameters and hyperparameters
+Visualise model performance metrics and feature importance
+Interactive user input for wine characteristics
+Display of ROC curves for model evaluation
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://app-starter-kit.streamlit.app/)
+## How to Use
+Select what to predict: Quality or Colour
+Choose a machine learning model
+Adjust test size and model hyperparameters
+Input custom wine characteristics or use default values
+View model performance metrics, feature importance, and ROC curves
 
-## GitHub Codespaces
+## Dataset
+The app uses the UCI Machine Learning Repository wine dataset, which includes various chemical components of wines along with their quality ratings and colours.
+Model Performance Metrics
+The app displays the following performance metrics:
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/app-starter-kit?quickstart=1)
+Accuracy
+Precision
+Recall
+F1-score
 
-## Section Heading
+## Visualisations
+Top 5 Most Important Features bar chart
+ROC Curve (binary for Colour prediction, multi-class for Quality prediction)
 
-This is filler text, please replace this with text for this section.
+## Technologies Used
+Python
+Streamlit
+Pandas
+Scikit-learn
+XGBoost
+Matplotlib
+
+## Running the App
+To run the app locally:
+Clone this repository
+Install the required packages: pip install -r requirements.txt
+Run the Streamlit app: streamlit run streamlit_app.py
 
 ## Further Reading
+Streamlit Documentation
+Scikit-learn Documentation
+XGBoost Documentation
+UCI Wine Quality Dataset
 
-This is filler text, please replace this with a explanatory text about further relevant resources for this repo
-- Resource 1
-- Resource 2
-- Resource 3
+## About
+This app was created by Bloch AI LTD. For more information, visit www.bloch.ai.
+© 2024 Bloch AI LTD - All Rights Reserved.
