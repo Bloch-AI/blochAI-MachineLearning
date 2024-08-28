@@ -115,7 +115,7 @@ if data is None:
     st.stop()
 
 # Display the first few rows of the dataset
-st.write('###Wine Dataset')
+st.write('## Wine Dataset')
 explanation_box("""
 This data, drawn from the UCI Machine Learning Repository wine dataset, has trained our machine learning model. 
 It features two class columns: Quality and Colour. Using machine learning, we can predict these attributes based 
