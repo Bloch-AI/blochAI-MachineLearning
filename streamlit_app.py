@@ -91,6 +91,7 @@ intro_box("""
 This app demonstrates how machine learning works, focusing on simple classification algorithms. You can experiment 
 with the data, adjust parameters and select different models to observe how these changes affect the model's performance. 
 By interacting with these elements, you'll gain practical insights into the workings of machine learning systems.
+## Adjust the parameters in the toolbar to the left and see the results change!
 """)
 
 # GitHub URL for the wine dataset
