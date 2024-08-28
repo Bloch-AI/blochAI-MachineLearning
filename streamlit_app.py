@@ -115,7 +115,7 @@ if data is None:
     st.stop()
 
 # Display the first few rows of the dataset
-st.write('## Wine Dataset')
+st.write('Wine Dataset')
 explanation_box("""
 This data, drawn from the UCI Machine Learning Repository wine dataset, has trained our machine learning model. 
 It features two class columns: Quality and Colour. Using machine learning, we can predict these attributes based 
@@ -199,7 +199,7 @@ For XGBoost models, the learning rate determines how quickly the model absorbs n
     explanation_box("""
         You can add your own wine values below, or more likely, tweak these default values to see how the model behaves.
     """)
-    st.write(f'## Predict Wine {prediction_choice}')
+    st.write(f'Predict Wine {prediction_choice}')
     user_input = {}
     for feature in data.drop(['quality', 'color'], axis=1).columns:
         user_input[feature] = st.number_input(f'{feature}', float(data[feature].min()), float(data[feature].max()), float(data[feature].mean()))
@@ -267,7 +267,7 @@ positive predictions are right, while recall shows how well it finds all positiv
 comprehensive measure of performance. Together, these metrics offer a thorough assessment of our model's predictive capabilities.
 """)
 st.markdown(f'<div class="result-box">'
-            f'### Metrics:<br>'
+            f'Metrics:<br>'
             f'Accuracy: {accuracy:.2f}<br>'
             f'Precision: {precision:.2f}<br>'
             f'Recall: {recall:.2f}<br>'
@@ -287,7 +287,7 @@ else:
     predicted_result = 'white' if prediction == 1 else 'red'
 
 # Display the prediction result
-st.markdown(f'<div class="result-box">### Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="result-box"> Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # Calculate and display feature importances
 if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
@@ -295,7 +295,7 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     feature_importance = pd.DataFrame({'Feature': features, 'Importance': importance}).sort_values(by='Importance', ascending=False)
     top_features = feature_importance.head(5)
 
-    st.write('### Top 5 Most Important Features')
+    st.write('Top 5 Most Important Features')
     explanation_box("""
         This chart shows which wine characteristics are most important for making predictions. 
         Longer bars indicate more influential features.
@@ -309,7 +309,7 @@ if model_choice in ['Random Forest', 'Decision Tree', 'XGBoost']:
     st.pyplot(plt)
 
 # Plot ROC curve
-st.write('### ROC Curve')
+st.write('ROC Curve')
 explanation_box("""
 The ROC (Receiver Operating Characteristic) curve illustrates our model's ability to distinguish between classes. 
 It plots the true positive rate against the false positive rate at various classification thresholds. A curve closer to the 
