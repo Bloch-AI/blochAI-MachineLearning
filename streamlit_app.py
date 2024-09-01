@@ -20,20 +20,34 @@
 # the strengths and weaknesses of each model.
 #**********************************************
 
+# Import necessary libraries for building the Streamlit app and handling data
+# Streamlit is used for creating the web app interface
 import streamlit as st
+# Pandas is used for data manipulation and analysis
 import pandas as pd
+# Requests is used for making HTTP requests to retrieve data from the web
 import requests
+# Numpy is used for numerical operations on large multi-dimensional arrays and matrices
 import numpy as np
+# BytesIO is used for handling in-memory binary streams (e.g., reading files from the web)
 from io import BytesIO
+
+# Import necessary libraries for machine learning
+# Train_test_split is used for splitting data into training and testing sets
 from sklearn.model_selection import train_test_split
+# RandomForestClassifier is a machine learning model used for classification tasks
 from sklearn.ensemble import RandomForestClassifier
+# DecisionTreeClassifier is another model used for classification, based on decision trees
 from sklearn.tree import DecisionTreeClassifier
+# Metrics for evaluating model performance, such as accuracy, precision, recall, F1 score, ROC curve, and AUC
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_curve, auc
+# StandardScaler is used for feature scaling, ensuring that data has a mean of 0 and a standard deviation of 1
 from sklearn.preprocessing import StandardScaler
+# Matplotlib is used for creating visualizations, such as plots and charts
 import matplotlib.pyplot as plt
+# XGBoost is a powerful machine learning model used for both classification and regression tasks
 import xgboost as xgb
 
-# Custom CSS for styling the Streamlit app
 
 # Custom CSS for styling the Streamlit app
 st.markdown("""
