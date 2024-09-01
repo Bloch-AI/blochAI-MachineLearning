@@ -2,7 +2,8 @@
 # Machine Learning Streamlit App
 # Version 1
 # 1st September 2024
-# Adapted by [Your Name]
+# Jamie Crossman-Smith
+# jamie@bloch.ai
 #**********************************************
 # This Python code creates a web-based application using Streamlit for demonstrating
 # machine learning model training and evaluation. The application allows users to compare a variety
