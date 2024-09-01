@@ -1,3 +1,24 @@
+#**********************************************
+# Machine Learning Streamlit App
+# Version 1
+# 1st September 2024
+# Adapted by [Your Name]
+#**********************************************
+# This Python code creates a web-based application using Streamlit for demonstrating
+# machine learning model training and evaluation. The application allows users to compare a variety
+# of machine learning models. The performance of these models is evaluated and visualised.
+#
+# The code begins by importing necessary libraries and setting up the application layout.
+# It then defines the main function that handles the core functionality:
+# - Loading and preprocessing data
+# - Splitting data into training and test sets
+# - Training different machine learning models (e.g., Decision Trees, Random Forests, XGBoost)
+# - Evaluating and visualizing model performance (e.g., accuracy, precision, ROC curves)
+#
+# The application displays results in a user-friendly way, allowing users to understand
+# the strengths and weaknesses of each model.
+#**********************************************
+
 import streamlit as st
 import pandas as pd
 import requests
@@ -10,6 +31,8 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import xgboost as xgb
+
+# Custom CSS for styling the Streamlit app
 
 # Custom CSS for styling the Streamlit app
 st.markdown("""
@@ -77,13 +100,19 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+
+# Function to handle explanation_box operations
 def explanation_box(text):
     return st.markdown(f'<div class="explanation-box">{text}</div>', unsafe_allow_html=True)
 
+
+# Function to handle intro_box operations
 def intro_box(text):
     return st.markdown(f'<div class="intro-box">{text}</div>', unsafe_allow_html=True)
 
 # Add header to the app
+
+# Custom CSS for styling the Streamlit app
 st.markdown('<div class="header"><h1>🍷 Wine Quality Prediction App</h1></div>', unsafe_allow_html=True)
 
 # Intro box explaining the app
@@ -99,6 +128,8 @@ url = 'https://raw.githubusercontent.com/Bloch-AI/blochAI-MachineLearning/master
 
 # Function to load data from GitHub
 @st.cache_data
+
+# Function to handle load_data operations
 def load_data(url):
     try:
         response = requests.get(url)
@@ -143,6 +174,8 @@ data.dropna(subset=['quality'], inplace=True)
 # Sidebar for user inputs
 with st.sidebar:
     
+
+# Displaying the 'Model Parameters' section
     st.header('Model Parameters')
     
     intro_box("""
@@ -267,6 +300,8 @@ These metrics illustrate model effectiveness. Accuracy represents the overall ra
 positive predictions are right, while recall shows how well it finds all positive cases. The F1-score balances precision and recall, providing a single, 
 comprehensive measure of performance. Together, these metrics offer a thorough assessment of our model's predictive capabilities.
 """)
+
+# Custom CSS for styling the Streamlit app
 st.markdown(f'<div class="result-box">'
             f'Metrics:<br>'
             f'Accuracy: {accuracy:.2f}<br>'
@@ -288,6 +323,8 @@ else:
     predicted_result = 'white' if prediction == 1 else 'red'
 
 # Display the prediction result
+
+# Custom CSS for styling the Streamlit app
 st.markdown(f'<div class="result-box"> Predicted {prediction_choice}: {predicted_result}</div>', unsafe_allow_html=True)
 
 # Calculate and display feature importances
@@ -356,4 +393,6 @@ else:
     st.pyplot(plt)
 
 # Add footer
+
+# Custom CSS for styling the Streamlit app
 st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved. <a href="https://www.bloch.ai" style="color: white;">www.bloch.ai</a></p></div>', unsafe_allow_html=True)
