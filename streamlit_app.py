@@ -93,7 +93,7 @@ st.markdown("""
     .header {
         width: 100%;
         background-color: #ffffff;
-        color: white;
+        color: black;
         text-align: center;
         padding: 1rem;
         margin-bottom: 2rem;
