@@ -409,6 +409,12 @@ else:
 
 # Add footer
 
-# Custom CSS for styling the Streamlit app
-st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved. <a href="https://www.bloch.ai" style="color: white;">www.bloch.ai</a></p></div>', unsafe_allow_html=True)_':)
+    </style>
+    <div class="footer">
+      <p>© 2025 Bloch AI LTD - All Rights Reserved. <a href="https://www.bloch.ai" style="color: white;">www.bloch.ai</a></p>
+    </div>
+    """
+    st.markdown(footer, unsafe_allow_html=True)
+
+if __name__ == '__main__':
     main()
