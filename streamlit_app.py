@@ -6,7 +6,7 @@
 # jamie@bloch.ai
 #**********************************************
 # This Python code creates an interactive educational web application using Streamlit.
-# The application demonstrates how machine learning can be used for wine quality (and colour)
+# The application demonstrates how machine learning can be used for wine quality and colour
 # prediction using various models. Users can experiment with the data, adjust parameters and
 # select different models (Random Forest, XGBoost, Decision Tree) to observe how these changes
 # affect the model's performance.
@@ -14,7 +14,7 @@
 # The app displays:
 # - The wine dataset (with a brief explanation of its columns)
 # - Model performance metrics such as accuracy, precision, recall, F1-score and ROC curves
-# - Feature importance charts (for tree‑based models)
+# - Feature importance charts (for tree-based models)
 #
 # Educational explanations are provided throughout the app (via sidebar expanders and info boxes)
 # to help users understand the model parameters, hyperparameters and how to interpret the visual outputs.
@@ -38,7 +38,7 @@ from sklearn.preprocessing import StandardScaler, label_binarize
 import matplotlib.pyplot as plt
 import xgboost as xgb
 
-# Custom CSS for styling the app
+# Custom CSS for styling the app (matching the SVM app style, with UK English)
 st.markdown("""
     <style>
     .main {
@@ -82,7 +82,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
     .footer {
-        position: relative;
+        position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
@@ -138,8 +138,8 @@ def main():
     st.dataframe(data.head(), height=150)
 
     # Data Preprocessing
-    # Map wine colour to numeric values (UK English: "Colour")
-    data['color'] = data['color'].map({'red': 0, 'white': 1})
+    # Map wine colour to numeric values – using UK English ("Colour")
+    data['colour'] = data['colour'].map({'red': 0, 'white': 1}) if 'colour' in data.columns else data['color'].map({'red': 0, 'white': 1})
     # Map quality text to numeric values – strip spaces and map; drop rows where quality is missing
     quality_mapping = {
         'extremely dissatisfied': 0,
@@ -167,7 +167,7 @@ def main():
         - **XGBoost:** An advanced boosting technique that builds trees sequentially.
         - **Decision Tree:** A simple tree-based model for clear, interpretable decisions.
         """)
-    # Use UK English: 'Colour' (not 'Color')
+    # Use UK English: 'Colour'
     prediction_choice = st.sidebar.radio("Choose what to predict", ('Quality', 'Colour'))
 
     st.sidebar.header('Model Hyperparameters')
@@ -198,15 +198,15 @@ def main():
     once the model is trained.
     """)
     user_input = {}
-    # Assume features are all columns except 'quality' and 'color'
-    for feature in data.drop(['quality', 'color'], axis=1).columns:
+    # Assume features are all columns except 'quality' and whichever is used for colour
+    features_all = data.drop(['quality', 'colour'] if 'colour' in data.columns else ['quality', 'color'], axis=1).columns
+    for feature in features_all:
         user_input[feature] = st.number_input(f'{feature}',
                                               float(data[feature].min()),
                                               float(data[feature].max()),
                                               float(data[feature].mean()))
 
     st.sidebar.header('Model Hyperparameter Settings')
-    # Depending on the chosen model, show the appropriate hyperparameter sliders
     if model_choice in ['Random Forest', 'XGBoost']:
         n_estimators = st.sidebar.slider('Number of Trees', 10, 200, 100)
         max_depth = st.sidebar.slider('Max Depth', 1, 20, 10 if model_choice=='Random Forest' else 6)
@@ -223,10 +223,10 @@ def main():
     # Prepare features and target based on user's prediction choice
     if prediction_choice == 'Quality':
         target = 'quality'
-        features = data.drop(['quality', 'color'], axis=1).columns
+        features = data.drop(['quality', 'colour'] if 'colour' in data.columns else ['quality', 'color'], axis=1).columns
     else:
-        target = 'color'
-        features = data.drop(['quality', 'color'], axis=1).columns
+        target = 'colour' if 'colour' in data.columns else 'color'
+        features = data.drop(['quality', target], axis=1).columns
 
     X = data[features].values
     y = data[target].values
@@ -251,10 +251,8 @@ def main():
             random_state=42
         )
     elif model_choice == 'XGBoost':
-        # For binary prediction (Colour), compute class imbalance ratio
         if prediction_choice == 'Colour':
             counts = np.bincount(y_train)
-            # Ensure there are two classes
             if len(counts) == 2:
                 scale_pos_weight = counts[0] / counts[1]
             else:
@@ -334,11 +332,10 @@ def main():
     st.write('## ROC Curve')
     explanation_box("""
     The ROC (Receiver Operating Characteristic) curve illustrates the model's ability to distinguish between classes.
-    For multi-class tasks, the curves are generated for each class; for binary tasks, a single curve is shown.
-    A curve closer to the top-left corner indicates better performance, and the AUC (Area Under Curve) summarises this performance.
+    For multi-class tasks, individual curves are generated for each class; for binary tasks, a single curve is shown.
+    A curve closer to the top-left corner indicates better performance, and the AUC (Area Under the Curve) summarises this performance.
     """)
     if prediction_choice == 'Quality':
-        # Multi-class ROC: use label binarisation
         classes_present = np.unique(y_test)
         y_test_bin = label_binarize(y_test, classes=classes_present)
         y_prob = model.predict_proba(X_test_scaled)
@@ -354,7 +351,6 @@ def main():
         ax_roc.legend(loc="lower right")
         st.pyplot(fig_roc)
     else:
-        # Binary ROC for Colour prediction
         y_prob = model.predict_proba(X_test_scaled)[:, 1]
         fpr, tpr, _ = roc_curve(y_test, y_prob)
         roc_auc = auc(fpr, tpr)
@@ -367,11 +363,11 @@ def main():
         ax_bin.legend(loc="lower right")
         st.pyplot(fig_bin)
 
-    # Footer (using relative positioning so it does not obscure content on smaller screens)
+    # Footer (fixed across the bottom)
     footer = """
     <style>
     .footer {
-        position: relative;
+        position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
@@ -389,4 +385,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
