@@ -408,28 +408,9 @@ else:
     st.pyplot(plt)
 
 # Add footer
-    # ================================
-    # Add Footer
-    # ================================
-    # Fixed footer across the bottom of the screen
-    footer = """
-    <style>
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: black;
-        color: white;
-        text-align: center;
-        padding: 10px;
-    }
-    </style>
-    <div class="footer">
-      <p>© 2024 Bloch AI LTD - All Rights Reserved. <a href="https://www.bloch.ai" style="color: white;">www.bloch.ai</a></p>
-    </div>
-    """
-    st.markdown(footer, unsafe_allow_html=True)
+
+# Custom CSS for styling the Streamlit app
+st.markdown('<div class="footer"><p>© 2024 Bloch AI LTD - All Rights Reserved. <a href="https://www.bloch.ai" style="color: white;">www.bloch.ai</a></p></div>', unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()
